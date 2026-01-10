@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Electronics",
+    "subcategories": [
+      "Mobiles",
+      "Laptops",
+      "Headphones",
+      "Smart Watches",
+      "Cameras"
+    ]
+  },
+  {
+    "name": "Fashion",
+    "subcategories": [
+      "Men Clothing",
+      "Women Clothing",
+      "Footwear",
+      "Watches",
+      "Accessories"
+    ]
+  },
+  {
+    "name": "Home & Kitchen",
+    "subcategories": [
+      "Furniture",
+      "Cookware",
+      "Home Decor",
+      "Lighting",
+      "Storage"
+    ]
+  },
+  {
+    "name": "Books",
+    "subcategories": [
+      "Fiction",
+      "Non-Fiction",
+      "Educational",
+      "Biographies",
+      "Comics"
+    ]
+  }
+]
