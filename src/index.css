@@ -29,4 +29,42 @@ code {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
+:root {
+  --primary: #0d6efd;
+  --secondary: #6610f2;
+  --accent: #f72585;
+  --soft-bg: #f8f9fa;
+}
+
+body {
+  background-color: var(--soft-bg);
+}
+
+.navbar {
+  background: linear-gradient(90deg, #ffffff, #f1f5ff);
+}
+
+.category-card {
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.subcategory-card img {
+  height: 160px;
+  object-fit: cover;
+}
+
+.footer-link {
+  color: #555;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: var(--accent);
+}
 
