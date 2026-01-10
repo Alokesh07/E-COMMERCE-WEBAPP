@@ -1,0 +1,18 @@
+{
+  "commonFilters": {
+    "brands": ["Apple", "Samsung", "Nike", "Adidas", "Sony"],
+    "sortBy": ["Popularity", "Price: Low to High", "Price: High to Low", "Newest"]
+  },
+  "categoryFilters": {
+    "Electronics": {
+      "RAM": ["4 GB", "8 GB", "16 GB"],
+      "Storage": ["64 GB", "128 GB", "256 GB"],
+      "Battery": ["4000mAh+", "5000mAh+"]
+    },
+    "Fashion": {
+      "Size": ["S", "M", "L", "XL"],
+      "Color": ["Black", "White", "Blue", "Red"],
+      "Fabric": ["Cotton", "Polyester", "Denim"]
+    }
+  }
+}

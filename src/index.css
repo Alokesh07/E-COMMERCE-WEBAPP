@@ -11,3 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.filter-slide-in {
+  animation: slideIn 0.25s ease-out;
+}
+
+.filter-sub-slide {
+  animation: slideInSub 0.25s ease-out;
+  left: 320px;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideInSub {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
