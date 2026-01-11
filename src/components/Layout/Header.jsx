@@ -9,6 +9,9 @@ import {
   Home,
   BookOpen,
 } from "lucide-react";
+// import { User } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import AuthModal from "../Auth/AuthModal";
 
 import categories from "../../data/categories.json";
 
@@ -23,6 +26,8 @@ const iconMap = {
 export default function Header() {
   const [showModal, setShowModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  const { user } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
   // onClick={() => setActiveCategory(category)}
 
   return (
@@ -55,12 +60,14 @@ export default function Header() {
         <div className="d-flex align-items-center gap-4">
           {/* USER */}
           <button
-            className="btn btn-light rounded-circle"
-            title="Profile"
-            onClick={() => console.log("Open Profile")}
+            className="btn btn-light d-flex align-items-center gap-2"
+            onClick={() => setShowAuth(true)}
           >
             <User size={20} />
+            {user && <span className="small">{user.name}</span>}
           </button>
+
+          <AuthModal show={showAuth} onClose={() => setShowAuth(false)} />
 
           {/* CART */}
           <button
@@ -101,9 +108,8 @@ export default function Header() {
                       <div className="col-md-3" key={cat.id}>
                         <div
                           className="card h-100 text-center category-card"
-                          style={{ borderColor: cat.color, cursor: 'pointer' }}
+                          style={{ borderColor: cat.color, cursor: "pointer" }}
                           onClick={() => setActiveCategory(cat)}
-                          
                         >
                           <img src={cat.image} className="card-img-top" />
                           <div className="card-body">
