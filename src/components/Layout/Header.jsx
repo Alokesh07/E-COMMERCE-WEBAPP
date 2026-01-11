@@ -8,10 +8,12 @@ import {
   Shirt,
   Home,
   BookOpen,
+  Power,
 } from "lucide-react";
 // import { User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import AuthModal from "../Auth/AuthModal";
+import AuthModal from "../Auth/AuthMessageModal";
+import { useNavigate } from "react-router-dom";
 
 import categories from "../../data/categories.json";
 
@@ -26,10 +28,17 @@ const iconMap = {
 export default function Header() {
   const [showModal, setShowModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   // onClick={() => setActiveCategory(category)}
+  // const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
+  const handleLogout = () => {
+    logout();
+    navigate("/auth");
+  };
   return (
     <>
       {/* HEADER BAR */}
@@ -61,13 +70,21 @@ export default function Header() {
           {/* USER */}
           <button
             className="btn btn-light d-flex align-items-center gap-2"
-            onClick={() => setShowAuth(true)}
+            onClick={() => navigate("/profile")}
           >
             <User size={20} />
-            {user && <span className="small">{user.name}</span>}
+            {user && <span className="small fw-semibold">{user.name}</span>}
           </button>
-
-          <AuthModal show={showAuth} onClose={() => setShowAuth(false)} />
+          {user && (
+            <button
+              className="btn btn-outline-danger"
+              title="Logout"
+              onClick={handleLogout}
+            >
+              <Power size={18} />
+            </button>
+          )}
+          {/* <AuthModal show={showAuth} onClose={() => setShowAuth(false)} /> */}
 
           {/* CART */}
           <button
@@ -77,7 +94,7 @@ export default function Header() {
           >
             <ShoppingCart size={20} />
             <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              2
+              0
             </span>
           </button>
         </div>
