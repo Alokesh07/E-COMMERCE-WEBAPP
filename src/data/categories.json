@@ -1,42 +1,60 @@
 [
   {
+    "id": "electronics",
     "name": "Electronics",
+    "color": "#0d6efd",
+    "image": "/images/categories/electronics.jpg",
+    "icon": "Cpu",
     "subcategories": [
-      "Mobiles",
-      "Laptops",
-      "Headphones",
-      "Smart Watches",
-      "Cameras"
+      {
+        "id": "mobiles",
+        "name": "Mobiles",
+        "image": "/images/subcategories/mobiles.jpg"
+      },
+      {
+        "id": "laptops",
+        "name": "Laptops",
+        "image": "/images/subcategories/laptops.jpg"
+      },
+      {
+        "id": "audio",
+        "name": "Audio Devices",
+        "image": "/images/subcategories/audio.jpg"
+      },
+      {
+        "id": "cameras",
+        "name": "Cameras",
+        "image": "/images/subcategories/cameras.jpg"
+      }
     ]
   },
   {
+    "id": "fashion",
     "name": "Fashion",
+    "color": "#d63384",
+    "image": "/images/categories/fashion.jpg",
+    "icon": "Shirt",
     "subcategories": [
-      "Men Clothing",
-      "Women Clothing",
-      "Footwear",
-      "Watches",
-      "Accessories"
-    ]
-  },
-  {
-    "name": "Home & Kitchen",
-    "subcategories": [
-      "Furniture",
-      "Cookware",
-      "Home Decor",
-      "Lighting",
-      "Storage"
-    ]
-  },
-  {
-    "name": "Books",
-    "subcategories": [
-      "Fiction",
-      "Non-Fiction",
-      "Educational",
-      "Biographies",
-      "Comics"
+      {
+        "id": "mens",
+        "name": "Men's Clothing",
+        "image": "/images/subcategories/mens.jpg"
+      },
+      {
+        "id": "womens",
+        "name": "Women's Clothing",
+        "image": "/images/subcategories/womens.jpg"
+      },
+      {
+        "id": "footwear",
+        "name": "Footwear",
+        "image": "/images/subcategories/footwear.jpg"
+      },
+      {
+        "id": "accessories",
+        "name": "Accessories",
+        "image": "/images/subcategories/accessories.jpg"
+      }
     ]
   }
 ]

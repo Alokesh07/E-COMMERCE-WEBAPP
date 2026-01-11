@@ -1,18 +1,41 @@
 {
-  "commonFilters": {
-    "brands": ["Apple", "Samsung", "Nike", "Adidas", "Sony"],
-    "sortBy": ["Popularity", "Price: Low to High", "Price: High to Low", "Newest"]
-  },
-  "categoryFilters": {
-    "Electronics": {
-      "RAM": ["4 GB", "8 GB", "16 GB"],
-      "Storage": ["64 GB", "128 GB", "256 GB"],
-      "Battery": ["4000mAh+", "5000mAh+"]
+  "common": {
+    "brands": [
+      "Apple",
+      "Samsung",
+      "Sony",
+      "Nike",
+      "Adidas",
+      "Puma",
+      "HP",
+      "Dell",
+      "Lenovo",
+      "Boat",
+      "JBL"
+    ],
+    "price": {
+      "min": 0,
+      "max": 150000
     },
-    "Fashion": {
-      "Size": ["S", "M", "L", "XL"],
-      "Color": ["Black", "White", "Blue", "Red"],
-      "Fabric": ["Cotton", "Polyester", "Denim"]
-    }
+    "sortBy": [
+      "Popularity",
+      "Newest",
+      "Price: Low to High",
+      "Price: High to Low",
+      "Customer Rating"
+    ]
+  },
+  "electronics": {
+    "RAM": ["4GB", "8GB", "16GB", "32GB"],
+    "Storage": ["64GB", "128GB", "256GB", "512GB", "1TB"],
+    "Processor": ["i3", "i5", "i7", "Ryzen 5", "Ryzen 7"],
+    "Battery": ["4000mAh+", "5000mAh+", "6000mAh+"],
+    "Warranty": ["No Warranty", "1 Year", "2 Years"]
+  },
+  "fashion": {
+    "Size": ["XS", "S", "M", "L", "XL", "XXL"],
+    "Color": ["Black", "White", "Blue", "Red", "Green"],
+    "Fabric": ["Cotton", "Denim", "Polyester", "Linen"],
+    "Fit": ["Slim", "Regular", "Loose"]
   }
 }
