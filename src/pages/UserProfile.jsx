@@ -1,43 +1,38 @@
-import ProfileInfo from "../components/Profile/ProfileInfo";
-import AddressManager from "../components/Profile/AddressManager";
-import OrderHistory from "../components/Profile/OrderHistory";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import ProfileSidebar from "../components/Profile/ProfileSidebar";
+import ProfileInfoPanel from "../components/Profile/ProfileInfoPanel";
+import AddressPanel from "../components/Profile/AddressPanel";
+import OrderHistoryPanel from "../components/Profile/OrderHistoryPanel";
+import LogoutConfirmModal from "../components/Profile/LogoutConfirmModal";
 
 export default function UserProfile() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("profile");
+  const [showLogout, setShowLogout] = useState(false);
 
   return (
-    <div className="container my-4">
-      <h3 className="mb-4 fw-bold">My Account</h3>
-
-      <div className="row g-4">
-        {/* CHAMBER 1 */}
-        <div className="col-md-4">
-          <ProfileInfo />
+    <div className="container-fluid mt-4">
+      <div className="row">
+        {/* SIDEBAR */}
+        <div className="col-md-3">
+          <ProfileSidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            onLogoutClick={() => setShowLogout(true)}
+          />
         </div>
 
-        {/* CHAMBER 2 */}
-        <div className="col-md-4">
-          <AddressManager />
-        </div>
-
-        {/* CHAMBER 3 */}
-        <div className="col-md-4">
-          <OrderHistory />
-
-          <button
-            className="btn btn-danger w-100 mt-3"
-            onClick={() => {
-              logout();
-              navigate("/auth");
-            }}
-          >
-            Logout
-          </button>
+        {/* CONTENT */}
+        <div className="col-md-9">
+          {activeTab === "profile" && <ProfileInfoPanel />}
+          {activeTab === "addresses" && <AddressPanel />}
+          {activeTab === "orders" && <OrderHistoryPanel />}
         </div>
       </div>
+
+      <LogoutConfirmModal
+        show={showLogout}
+        onClose={() => setShowLogout(false)}
+      />
     </div>
   );
 }

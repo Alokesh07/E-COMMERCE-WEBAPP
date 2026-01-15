@@ -1,44 +1,19 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Menu,
-  User,
-  ShoppingCart,
-  Cpu,
-  Shirt,
-  Home,
-  BookOpen,
-  Power,
-} from "lucide-react";
-// import { User } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import AuthModal from "../Auth/AuthMessageModal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, User, ShoppingCart, Power } from "lucide-react";
 
+import { useAuth } from "../../context/AuthContext";
+import LogoutConfirmModal from "../Profile/LogoutConfirmModal";
 import categories from "../../data/categories.json";
 
-/* ICON MAP */
-const iconMap = {
-  Cpu,
-  Shirt,
-  Home,
-  BookOpen,
-};
-
 export default function Header() {
-  const [showModal, setShowModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
-  // const { user } = useAuth();
-  const [showAuth, setShowAuth] = useState(false);
-  // onClick={() => setActiveCategory(category)}
-  // const user = JSON.parse(localStorage.getItem("loggedInUser"));
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const [showLogout, setShowLogout] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/auth");
-  };
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   return (
     <>
       {/* HEADER BAR */}
@@ -51,7 +26,7 @@ export default function Header() {
         {/* CATEGORY BUTTON */}
         <button
           className="btn btn-outline-dark d-flex align-items-center gap-2"
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowCategoryModal(true)}
         >
           <Menu size={18} />
           Categories
@@ -66,8 +41,8 @@ export default function Header() {
         </div>
 
         {/* RIGHT ICONS */}
-        <div className="d-flex align-items-center gap-4">
-          {/* USER */}
+        <div className="d-flex align-items-center gap-3">
+          {/* USER PROFILE */}
           <button
             className="btn btn-light d-flex align-items-center gap-2"
             onClick={() => navigate("/profile")}
@@ -75,22 +50,22 @@ export default function Header() {
             <User size={20} />
             {user && <span className="small fw-semibold">{user.name}</span>}
           </button>
+
+          {/* LOGOUT POWER BUTTON */}
           {user && (
             <button
               className="btn btn-outline-danger"
               title="Logout"
-              onClick={handleLogout}
+              onClick={() => setShowLogout(true)}
             >
               <Power size={18} />
             </button>
           )}
-          {/* <AuthModal show={showAuth} onClose={() => setShowAuth(false)} /> */}
 
           {/* CART */}
           <button
             className="btn btn-light position-relative rounded-circle"
             title="Cart"
-            onClick={() => console.log("Open Cart")}
           >
             <ShoppingCart size={20} />
             <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -100,8 +75,14 @@ export default function Header() {
         </div>
       </nav>
 
+      {/* LOGOUT CONFIRM MODAL */}
+      <LogoutConfirmModal
+        show={showLogout}
+        onClose={() => setShowLogout(false)}
+      />
+
       {/* ================= CATEGORY MODAL ================= */}
-      {showModal && (
+      {showCategoryModal && (
         <div
           className="modal fade show"
           style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
@@ -113,8 +94,11 @@ export default function Header() {
                 <h5 className="modal-title fw-bold">Browse Categories</h5>
                 <button
                   className="btn-close"
-                  onClick={() => setShowModal(false)}
-                ></button>
+                  onClick={() => {
+                    setShowCategoryModal(false);
+                    setActiveCategory(null);
+                  }}
+                />
               </div>
 
               {/* MODAL BODY */}
@@ -125,10 +109,14 @@ export default function Header() {
                       <div className="col-md-3" key={cat.id}>
                         <div
                           className="card h-100 text-center category-card"
-                          style={{ borderColor: cat.color, cursor: "pointer" }}
+                          style={{ cursor: "pointer" }}
                           onClick={() => setActiveCategory(cat)}
                         >
-                          <img src={cat.image} className="card-img-top" />
+                          <img
+                            src={cat.image}
+                            className="card-img-top"
+                            alt=""
+                          />
                           <div className="card-body">
                             <h6 className="fw-bold">{cat.name}</h6>
                           </div>
@@ -149,7 +137,11 @@ export default function Header() {
                       {activeCategory.subcategories.map((sub) => (
                         <div className="col-md-3" key={sub.id}>
                           <div className="card h-100 text-center subcategory-card">
-                            <img src={sub.image} className="card-img-top" />
+                            <img
+                              src={sub.image}
+                              className="card-img-top"
+                              alt=""
+                            />
                             <div className="card-body">
                               <h6>{sub.name}</h6>
                             </div>
@@ -165,7 +157,10 @@ export default function Header() {
               <div className="modal-footer">
                 <button
                   className="btn btn-secondary"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {
+                    setShowCategoryModal(false);
+                    setActiveCategory(null);
+                  }}
                 >
                   Close
                 </button>
