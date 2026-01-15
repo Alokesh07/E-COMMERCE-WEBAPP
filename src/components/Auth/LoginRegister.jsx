@@ -11,13 +11,35 @@ const LoginRegister = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-const { login } = useAuth();
+  const { login } = useAuth();
 
   const getUsers = () => JSON.parse(localStorage.getItem("users")) || [];
 
   const saveUsers = (users) =>
     localStorage.setItem("users", JSON.stringify(users));
 
+  // const handleSignup = (data) => {
+  //   const users = getUsers();
+
+  //   if (users.some((u) => u.email === data.email)) {
+  //     setMessage("Email already registered. Please login.");
+  //     return;
+  //   }
+
+  //   const newUser = {
+  //     id: Date.now(),
+  //     username: "user" + Math.floor(10000 + Math.random() * 90000),
+  //     ...data,
+  //   };
+
+  //   users.push(newUser);
+  //   saveUsers(users);
+
+  //   setMessage(
+  //     `Registration successful!\nYour username is: ${newUser.username}`
+  //   );
+  //   setActiveTab("login");
+  // };
   const handleSignup = (data) => {
     const users = getUsers();
 
@@ -26,37 +48,32 @@ const { login } = useAuth();
       return;
     }
 
-    const newUser = {
+    users.push({
       id: Date.now(),
-      username: "user" + Math.floor(10000 + Math.random() * 90000),
-      ...data,
-    };
+      ...data, // includes username now
+    });
 
-    users.push(newUser);
     saveUsers(users);
 
-    setMessage(
-      `Registration successful!\nYour username is: ${newUser.username}`
-    );
+    setMessage(`Registration successful! Your User ID is ${data.username}`);
     setActiveTab("login");
   };
 
-const handleLogin = ({ username, password }) => {
-  const users = getUsers();
+  const handleLogin = ({ username, password }) => {
+    const users = getUsers();
 
-  const user = users.find(
-    (u) => u.username === username && u.password === password
-  );
+    const user = users.find(
+      (u) => u.username === username && u.password === password
+    );
 
-  if (!user) {
-    setMessage("Invalid username or password.");
-    return;
-  }
+    if (!user) {
+      setMessage("Invalid username or password.");
+      return;
+    }
 
-  login(user);      
-  navigate("/");    
-};
-
+    login(user);
+    navigate("/");
+  };
 
   return (
     <div className="login-register-container">
