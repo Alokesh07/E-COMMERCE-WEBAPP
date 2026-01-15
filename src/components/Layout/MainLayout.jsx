@@ -1,26 +1,22 @@
-import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import AnnouncementBar from "./AnnouncementBar";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import MobileDock from "./MobileDock";
 
-export default function MainLayout({ children }) {
-  const [activeCategory, setActiveCategory] = useState(null);
-
+export default function MainLayout() {
   return (
     <>
       <AnnouncementBar />
-
-      <Header
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-      />
+      <Header />
 
       <div className="container-fluid">
         <div className="row">
-          <Sidebar activeCategory={activeCategory} />
-          <main className="col-md-10 p-4">{children}</main>
+          <Sidebar />
+          <main className="col-md-10 p-4">
+            <Outlet />
+          </main>
         </div>
       </div>
 
