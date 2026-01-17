@@ -2,21 +2,49 @@ import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import ProfileImageUploader from "./ProfileImageUploader";
-
+import Toast from "../common/Toast";
 export default function ProfileInfoPanel() {
   const { user, updateUser } = useAuth();
 
   const [showEdit, setShowEdit] = useState(false);
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phone);
+  const [showToast, setShowToast] = useState(false);
 
   const saveChanges = () => {
     updateUser({ email, phone });
     setShowEdit(false);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
   };
+  const completionFields = [
+    user.profileImage,
+    user.email,
+    user.phone,
+    user.addresses?.length > 0,
+  ];
+
+  const completion =
+    (completionFields.filter(Boolean).length / completionFields.length) * 100;
+
+  // const saveChanges = () => {
+  //   updateUser({ email, phone });
+  //   setShowEdit(false);
+  // };
 
   return (
     <>
+      <div className="mb-3">
+        <small className="text-muted">Profile Completion</small>
+        <div className="progress">
+          <div
+            className="progress-bar bg-success"
+            style={{ width: `${completion}%` }}
+          >
+            {Math.round(completion)}%
+          </div>
+        </div>
+      </div>
       <div className="card p-4 shadow-sm position-relative">
         <h4 className="fw-bold mb-3">Profile Information</h4>
 
@@ -85,6 +113,7 @@ export default function ProfileInfoPanel() {
               </div>
             </div>
           </div>
+          <Toast message="Profile updated successfully" show={showToast} />
         </div>
       )}
     </>

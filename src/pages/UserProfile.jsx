@@ -22,7 +22,7 @@ export default function UserProfile() {
         </div>
 
         {/* CONTENT */}
-        <div className="col-md-9">
+        <div className="col-md-9 profile-content">
           {activeTab === "profile" && <ProfileInfoPanel />}
           {activeTab === "addresses" && <AddressPanel />}
           {activeTab === "orders" && <OrderHistoryPanel />}

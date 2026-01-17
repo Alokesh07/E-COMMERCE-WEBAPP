@@ -6,13 +6,26 @@ export default function AddressPanel() {
   const [newAddress, setNewAddress] = useState("");
 
   const addresses = user.addresses || [];
+  const [form, setForm] = useState({
+    address: "",
+    city: "",
+    zip: "",
+    landmark: "",
+  });
 
   const addAddress = () => {
     updateUser({
-      addresses: [...addresses, { id: Date.now(), text: newAddress }],
+      addresses: [...(user.addresses || []), { id: Date.now(), ...form }],
     });
-    setNewAddress("");
+    setForm({ address: "", city: "", zip: "", landmark: "" });
   };
+
+  // const addAddress = () => {
+  //   updateUser({
+  //     addresses: [...addresses, { id: Date.now(), text: newAddress }],
+  //   });
+  //   setNewAddress("");
+  // };
 
   return (
     <div className="card p-4 shadow-sm">
@@ -29,11 +42,32 @@ export default function AddressPanel() {
         </div>
       ))}
 
-      <textarea
+      <input
         className="form-control mb-2"
-        placeholder="Add new address"
-        value={newAddress}
-        onChange={(e) => setNewAddress(e.target.value)}
+        placeholder="Address"
+        value={form.address}
+        onChange={(e) => setForm({ ...form, address: e.target.value })}
+      />
+
+      <input
+        className="form-control mb-2"
+        placeholder="City"
+        value={form.city}
+        onChange={(e) => setForm({ ...form, city: e.target.value })}
+      />
+
+      <input
+        className="form-control mb-2"
+        placeholder="Zip Code"
+        value={form.zip}
+        onChange={(e) => setForm({ ...form, zip: e.target.value })}
+      />
+
+      <input
+        className="form-control mb-2"
+        placeholder="Landmark"
+        value={form.landmark}
+        onChange={(e) => setForm({ ...form, landmark: e.target.value })}
       />
 
       <button className="btn btn-outline-primary" onClick={addAddress}>
