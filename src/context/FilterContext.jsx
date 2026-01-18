@@ -2,17 +2,20 @@ import { createContext, useContext, useState } from "react";
 
 const FilterContext = createContext();
 
-const initialFilters = {
-  price: 100000,
-  brands: [],
-  sortBy: "",
-  attributes: {}
-};
-
 export function FilterProvider({ children }) {
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = useState({
+    price: 50000,
+    brands: [],
+    sort: "",
+  });
 
-  const clearFilters = () => setFilters(initialFilters);
+  const clearFilters = () => {
+    setFilters({
+      price: 50000,
+      brands: [],
+      sort: "",
+    });
+  };
 
   return (
     <FilterContext.Provider value={{ filters, setFilters, clearFilters }}>
@@ -21,4 +24,10 @@ export function FilterProvider({ children }) {
   );
 }
 
-export const useFilters = () => useContext(FilterContext);
+export const useFilters = () => {
+  const context = useContext(FilterContext);
+  if (!context) {
+    throw new Error("useFilters must be used inside FilterProvider");
+  }
+  return context;
+};

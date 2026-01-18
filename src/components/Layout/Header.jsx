@@ -66,6 +66,7 @@ export default function Header() {
           <button
             className="btn btn-light position-relative rounded-circle"
             title="Cart"
+            onClick={() => navigate("/cart")}
           >
             <ShoppingCart size={20} />
             <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">

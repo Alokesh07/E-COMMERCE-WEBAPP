@@ -8,22 +8,22 @@ import "./index.css";
 // CONTEXT PROVIDERS
 import { AuthProvider } from "./context/AuthContext";
 import { FilterProvider } from "./context/FilterContext";
-
+import { CartProvider } from "./context/CartContext";
 // BOOTSTRAP
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 // import "bootstrap-icons/font/bootstrap-icons.css";
-
+// import { FilterProvider } from "./context/FilterContext";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <FilterProvider>
+  <BrowserRouter>
+    <AuthProvider>
+      <FilterProvider>
+        <CartProvider>
           <App />
-        </FilterProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+        </CartProvider>
+      </FilterProvider>
+    </AuthProvider>
+  </BrowserRouter>
 );
