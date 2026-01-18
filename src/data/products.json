@@ -5,5 +5,68 @@
     "price": 79999,
     "brand": "Apple",
     "category": "electronics"
+  },
+    {
+    "id": 2,
+    "name": "iPhone 17 Pro",
+    "price": 79999,
+    "brand": "Apple",
+    "category": "electronics"
+  },
+    {
+    "id": 3,
+    "name": "Samsung Galaxy S23",
+    "price": 69999,
+    "brand": "Samsung",
+    "category": "electronics"
+  },
+  {
+    "id": 4,
+    "name": "Sony WH-1000XM5",
+    "price": 24999,
+    "brand": "Sony",
+    "category": "electronics"
+  },
+  {
+    "id": 5,
+    "name": "Dell XPS 13",
+    "price": 99999,
+    "brand": "Dell",
+    "category": "computers"
+  },
+  {
+    "id": 6,
+    "name": "MacBook Pro 16",
+    "price": 239999,
+    "brand": "Apple",
+    "category": "computers"
+  },
+  {
+    "id": 7,
+    "name": "HP Spectre x360",
+    "price": 119999,
+    "brand": "HP",
+    "category": "computers"
+  },
+  {
+    "id": 8,
+    "name": "Asus ROG Zephyrus G14",
+    "price": 139999,
+    "brand": "Asus",
+    "category": "computers"
+  },
+  {
+    "id": 9,
+    "name": "Apple Watch Series 9",
+    "price": 39999,
+    "brand": "Apple",
+    "category": "wearables"
+  },
+  {
+    "id": 10,
+    "name": "Samsung Galaxy Watch 6",
+    "price": 34999,
+    "brand": "Samsung",
+    "category": "wearables"
   }
 ]
