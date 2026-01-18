@@ -5,11 +5,40 @@ import { Menu, User, ShoppingCart, Power } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import LogoutConfirmModal from "../Profile/LogoutConfirmModal";
 import categories from "../../data/categories.json";
+import products from "../../data/products.json";
 
 export default function Header() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [showLogout, setShowLogout] = useState(false);
+  const [search, setSearch] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+
+    if (!value.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    const matches = products
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(value.toLowerCase()) ||
+          p.brand?.toLowerCase().includes(value.toLowerCase()) ||
+          p.category?.toLowerCase().includes(value.toLowerCase())
+      )
+      .slice(0, 5);
+
+    setSuggestions(matches);
+  };
+  const handleSearchSubmit = (query) => {
+    if (!query.trim()) return;
+    navigate(`/shop?search=${encodeURIComponent(query)}`);
+    setSearch("");
+    setSuggestions([]);
+  };
 
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -33,11 +62,39 @@ export default function Header() {
         </button>
 
         {/* SEARCH */}
-        <div className="mx-auto w-50 d-none d-lg-block">
+        {/* <div className="mx-auto w-50 d-none d-lg-block">
           <input
             className="form-control rounded-pill"
             placeholder="Search products, brands, and more..."
           />
+        </div> */}
+        {/* SEARCH */}
+        <div className="mx-auto w-50 d-none d-lg-block position-relative">
+          <input
+            className="form-control rounded-pill px-4"
+            placeholder="Search products, brands, and more..."
+            value={search}
+            onChange={handleSearchChange}
+            onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit(search)}
+            onBlur={() => setTimeout(() => setSuggestions([]), 200)}
+          />
+
+          {/* AUTOSUGGEST */}
+          {suggestions.length > 0 && (
+            <div className="position-absolute bg-white shadow rounded w-100 mt-1 z-3">
+              {suggestions.map((item) => (
+                <div
+                  key={item.id}
+                  className="px-3 py-2 suggestion-item"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleSearchSubmit(item.name)}
+                >
+                  <strong>{item.name}</strong>
+                  <div className="text-muted small">{item.brand}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* RIGHT ICONS */}

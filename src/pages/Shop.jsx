@@ -1,21 +1,18 @@
 import products from "../data/products.json";
 import { useFilters } from "../context/FilterContext";
 import { useCart } from "../context/CartContext";
-import { ShoppingCart, Zap, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, SearchX } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Shop() {
   const { filters } = useFilters();
   const { cart, addToCart, updateQty } = useCart();
   const navigate = useNavigate();
   const [loadingId, setLoadingId] = useState(null);
+  const [searchParams] = useSearchParams();
 
-  const filteredProducts = products
-    .filter((p) => p.price <= filters.price)
-    .filter((p) =>
-      filters.brands.length ? filters.brands.includes(p.brand) : true
-    );
+  const searchQuery = searchParams.get("search")?.toLowerCase() || "";
 
   const getQty = (id) => cart.find((p) => p.id === id)?.qty || 0;
 
@@ -26,6 +23,39 @@ export default function Shop() {
       setLoadingId(null);
     }, 700);
   };
+
+  const filteredProducts = products
+    .filter((p) => p.price <= filters.price)
+    .filter((p) =>
+      filters.brands.length ? filters.brands.includes(p.brand) : true
+    )
+    .filter((p) => {
+      if (!searchQuery) return true;
+      return (
+        p.name.toLowerCase().includes(searchQuery) ||
+        p.brand?.toLowerCase().includes(searchQuery) ||
+        p.category?.toLowerCase().includes(searchQuery)
+      );
+    });
+
+  /* NO RESULTS */
+  if (filteredProducts.length === 0) {
+    return (
+      <div className="text-center py-5">
+        <SearchX size={48} className="text-muted mb-3" />
+        <h4>No results found</h4>
+        <p className="text-muted">
+          We couldn’t find anything for <strong>“{searchQuery}”</strong>
+        </p>
+        <button
+          className="btn btn-outline-primary mt-3"
+          onClick={() => navigate("/shop")}
+        >
+          Clear Search
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="row g-4">
@@ -41,9 +71,9 @@ export default function Shop() {
 
                 <div className="mt-auto">
                   {qty === 0 ? (
-                    <>
+                    <div className="d-flex flex-column flex-md-row gap-2">
                       <button
-                        className="btn btn-outline-primary w-100 mb-2 d-flex align-items-center justify-content-center gap-2"
+                        className="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2"
                         onClick={() => handleAdd(product)}
                         disabled={loadingId === product.id}
                       >
@@ -62,7 +92,7 @@ export default function Shop() {
                       >
                         <Zap size={16} /> Buy Now
                       </button>
-                    </>
+                    </div>
                   ) : (
                     <div className="d-flex justify-content-between align-items-center border rounded px-3 py-2">
                       <button
