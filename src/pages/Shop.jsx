@@ -43,7 +43,7 @@ export default function Shop() {
                   {qty === 0 ? (
                     <>
                       <button
-                        className="btn btn-primary w-100 mb-2 d-flex align-items-center justify-content-center gap-2"
+                        className="btn btn-outline-primary w-100 mb-2 d-flex align-items-center justify-content-center gap-2"
                         onClick={() => handleAdd(product)}
                         disabled={loadingId === product.id}
                       >
@@ -57,7 +57,7 @@ export default function Shop() {
                       </button>
 
                       <button
-                        className="btn btn-warning w-100 d-flex align-items-center justify-content-center gap-2"
+                        className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
                         onClick={() => navigate("/checkout")}
                       >
                         <Zap size={16} /> Buy Now
