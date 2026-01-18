@@ -48,12 +48,14 @@ export default function ProfileInfoPanel() {
 
       {/* PROFILE CARD */}
       <div className="profile-card">
-        {/* HEADER */}
-        <div className="profile-card-header">
-          <h4 className="m-0">Profile Information</h4>
+        {/* NAME */}
+        <div className="profile-name-row d-flex align-items-center justify-content-between">
+          <h2 className="profile-name d-flex align-items-center gap-2">
+            <User size={22} /> {user.name}
+          </h2>
 
           <button
-            className="icon-btn"
+            className="btn btn-light btn-sm"
             title="Edit Profile"
             onClick={() => setShowEdit(true)}
           >
@@ -61,87 +63,116 @@ export default function ProfileInfoPanel() {
           </button>
         </div>
 
-        {/* TOP SECTION */}
-        <div className="profile-top">
-          <ProfileImageUploader />
-
-          <div className="profile-meta">
-            <div className="meta-row">
-              <User size={14} />
-              <div>
-                <span>Name</span>
-                <strong>{user.name}</strong>
-              </div>
-            </div>
-
-            <div className="meta-row">
-              <BadgeCheck size={14} />
-              <div>
-                <span>User ID</span>
-                <strong>{user.username}</strong>
-              </div>
-            </div>
-
-            <div className="meta-row">
-              <Calendar size={14} />
-              <div>
-                <span>DOB</span>
-                <strong>{user.dob}</strong>
-              </div>
-            </div>
+        {/* MAIN GRID */}
+        <div className="profile-main-grid">
+          {/* AVATAR */}
+          <div className="profile-avatar-col">
+            <ProfileImageUploader />
           </div>
-        </div>
 
-        {/* DIVIDER */}
-        <hr className="profile-divider" />
+          {/* DETAILS */}
+          <div className="profile-info-grid">
+            <div className="info-item">
+              <span className="d-flex align-items-center gap-1">
+                <BadgeCheck size={14} /> User ID
+              </span>
+              <strong>{user.username}</strong>
+            </div>
 
-        {/* CONTACT INFO */}
-        <div className="profile-details">
-          <div className="detail-item">
-            <Mail size={16} />
-            <div>
-              <span>Email</span>
+            <div className="info-item">
+              <span className="d-flex align-items-center gap-1">
+                <Calendar size={14} /> DOB
+              </span>
+              <strong>{user.dob}</strong>
+            </div>
+
+            <div className="info-item">
+              <span className="d-flex align-items-center gap-1">
+                <Mail size={14} /> Email
+              </span>
               <strong>{user.email}</strong>
             </div>
-          </div>
 
-          <div className="detail-item">
-            <Phone size={16} />
-            <div>
-              <span>Phone</span>
+            <div className="info-item">
+              <span className="d-flex align-items-center gap-1">
+                <Phone size={14} /> Phone
+              </span>
               <strong>{user.phone}</strong>
             </div>
           </div>
         </div>
       </div>
 
-      {/* EDIT MODAL */}
+      {/* EDIT MODAL (INLINE STYLED) */}
       {showEdit && (
         <div
           className="modal fade show d-block"
-          style={{ background: "rgba(0,0,0,0.55)" }}
+          style={{
+            background: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(4px)",
+          }}
         >
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content p-4">
-              <h5 className="fw-bold mb-3">Edit Contact Information</h5>
+            <div
+              className="modal-content"
+              style={{
+                borderRadius: "16px",
+                padding: "24px",
+                boxShadow: "0 25px 60px rgba(0,0,0,0.25)",
+              }}
+            >
+              <h5
+                className="fw-bold mb-4"
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Pencil size={18} /> Edit Contact Information
+              </h5>
 
-              <input
-                className="form-control mb-2"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-              />
+              {/* EMAIL */}
+              <div style={{ position: "relative", marginBottom: "16px" }}>
+                <Mail
+                  size={16}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "12px",
+                    transform: "translateY(-50%)",
+                    color: "#64748b",
+                  }}
+                />
+                <input
+                  className="form-control"
+                  style={{ paddingLeft: "40px" }}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email address"
+                />
+              </div>
 
-              <input
-                className="form-control mb-3"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Phone"
-              />
+              {/* PHONE */}
+              <div style={{ position: "relative", marginBottom: "24px" }}>
+                <Phone
+                  size={16}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "12px",
+                    transform: "translateY(-50%)",
+                    color: "#64748b",
+                  }}
+                />
+                <input
+                  className="form-control"
+                  style={{ paddingLeft: "40px" }}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Phone number"
+                />
+              </div>
 
               <div className="d-flex gap-2">
                 <button
-                  className="btn btn-secondary w-50"
+                  className="btn btn-outline-secondary w-50"
                   onClick={() => setShowEdit(false)}
                 >
                   Cancel
