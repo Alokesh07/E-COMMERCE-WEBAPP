@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, User, ShoppingCart, Power } from "lucide-react";
-
+import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import LogoutConfirmModal from "../Profile/LogoutConfirmModal";
 import categories from "../../data/categories.json";
@@ -11,8 +11,10 @@ export default function Header() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [showLogout, setShowLogout] = useState(false);
+  const { cart } = useCart();
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const cartCount = cart.reduce((total, item) => total + item.qty, 0);
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -27,7 +29,7 @@ export default function Header() {
         (p) =>
           p.name.toLowerCase().includes(value.toLowerCase()) ||
           p.brand?.toLowerCase().includes(value.toLowerCase()) ||
-          p.category?.toLowerCase().includes(value.toLowerCase())
+          p.category?.toLowerCase().includes(value.toLowerCase()),
       )
       .slice(0, 5);
 
@@ -126,9 +128,14 @@ export default function Header() {
             onClick={() => navigate("/cart")}
           >
             <ShoppingCart size={20} />
-            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {/* <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
               0
-            </span>
+            </span> */}
+            {cartCount > 0 && (
+              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {cartCount}
+              </span>
+            )}
           </button>
         </div>
       </nav>

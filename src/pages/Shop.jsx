@@ -27,7 +27,7 @@ export default function Shop() {
   const filteredProducts = products
     .filter((p) => p.price <= filters.price)
     .filter((p) =>
-      filters.brands.length ? filters.brands.includes(p.brand) : true
+      filters.brands.length ? filters.brands.includes(p.brand) : true,
     )
     .filter((p) => {
       if (!searchQuery) return true;
@@ -73,7 +73,7 @@ export default function Shop() {
                   {qty === 0 ? (
                     <div className="d-flex flex-column flex-md-row gap-2">
                       <button
-                        className="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                        className="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-1 rounded-pill px-3 shadow-sm"
                         onClick={() => handleAdd(product)}
                         disabled={loadingId === product.id}
                       >
@@ -81,16 +81,23 @@ export default function Shop() {
                           <span className="spinner-border spinner-border-sm" />
                         ) : (
                           <>
-                            <ShoppingCart size={16} /> Add to Cart
+                            <ShoppingCart size={14} /> Add to Cart
                           </>
                         )}
                       </button>
 
                       <button
-                        className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
-                        onClick={() => navigate("/checkout")}
+                        className="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 rounded-pill px-3"
+                        onClick={() =>
+                          navigate("/checkout", {
+                            state: {
+                              items: [{ ...product, qty: 1 }],
+                              fromCart: false,
+                            },
+                          })
+                        }
                       >
-                        <Zap size={16} /> Buy Now
+                        <Zap size={14} /> Buy Now
                       </button>
                     </div>
                   ) : (
