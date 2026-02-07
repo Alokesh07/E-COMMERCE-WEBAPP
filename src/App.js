@@ -7,14 +7,17 @@ import MainLayout from "./components/Layout/MainLayout";
 import Shop from "./pages/Shop";
 import UserProfile from "./pages/UserProfile";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
+import OrderTracking from "./pages/OrderTracking";
 
 function App() {
   return (
     <Routes>
-      {/* AUTH PAGE */}
+      {/* ================= AUTH ================= */}
       <Route path="/auth" element={<LoginRegister />} />
 
-      {/* PROTECTED ROUTES */}
+      {/* ================= MAIN LAYOUT (HEADER + SIDEBAR) ================= */}
       <Route
         path="/"
         element={
@@ -23,12 +26,49 @@ function App() {
           </ProtectedRoute>
         }
       >
+        {/* HOME / SHOP */}
         <Route index element={<Shop />} />
-        <Route path="profile" element={<UserProfile />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<div>Checkout Coming Soon 🔥</div>} />
 
+        {/* USER PROFILE */}
+        <Route path="profile" element={<UserProfile />} />
       </Route>
+
+      {/* ================= STANDALONE PROTECTED PAGES (NO HEADER / SIDEBAR) ================= */}
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/checkout"
+        element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/order-success"
+        element={
+          <ProtectedRoute>
+            <OrderSuccess />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/order-tracking/:orderId"
+        element={
+          <ProtectedRoute>
+            <OrderTracking />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
