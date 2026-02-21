@@ -1,3 +1,38 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "user-001",
+      "username": "demo",
+      "password": "demo123",
+      "name": "Demo User",
+      "email": "demo@shopx.com",
+      "phone": "9876543210",
+      "addresses": [
+        {
+          "id": "addr-001",
+          "address": "123 Main Street",
+          "city": "Mumbai",
+          "state": "Maharashtra",
+          "zip": "400001"
+        }
+      ]
+    },
+    {
+      "id": "user-002",
+      "username": "johndoe",
+      "password": "John@123",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "9876543211",
+      "addresses": [
+        {
+          "id": "addr-002",
+          "address": "456 Oak Avenue",
+          "city": "Delhi",
+          "state": "Delhi",
+          "zip": "110001"
+        }
+      ]
+    }
+  ]
 }

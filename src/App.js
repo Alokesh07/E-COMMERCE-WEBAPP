@@ -10,12 +10,18 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrderTracking from "./pages/OrderTracking";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
     <Routes>
       {/* ================= AUTH ================= */}
       <Route path="/auth" element={<LoginRegister />} />
+
+      {/* ================= ADMIN ROUTES ================= */}
+      <Route path="/admin-login" element={<AdminLogin />} />
+      <Route path="/admin" element={<AdminDashboard />} />
 
       {/* ================= MAIN LAYOUT (HEADER + SIDEBAR) ================= */}
       <Route

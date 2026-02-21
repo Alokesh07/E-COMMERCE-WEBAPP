@@ -8,17 +8,15 @@ import {
   Twitter,
   ShieldCheck,
   Truck,
-  RefreshCcw
+  RefreshCcw,
 } from "lucide-react";
-
+import { Link } from "react-router-dom";
 export default function Footer() {
   return (
     <footer className="bg-light border-top mt-5">
       <div className="container py-5">
-
         {/* TOP GRID */}
         <div className="row gy-4">
-
           {/* BRAND + ABOUT */}
           <div className="col-md-4">
             <h5 className="fw-bold mb-3 d-flex align-items-center gap-2">
@@ -27,8 +25,8 @@ export default function Footer() {
             </h5>
 
             <p className="text-muted small">
-              ShopX is your one-stop destination for quality products,
-              fast delivery, and seamless shopping experience.
+              ShopX is your one-stop destination for quality products, fast
+              delivery, and seamless shopping experience.
             </p>
 
             <div className="d-flex gap-3 mt-3">
@@ -41,12 +39,32 @@ export default function Footer() {
           {/* QUICK LINKS */}
           <div className="col-md-2">
             <h6 className="fw-semibold mb-3">Quick Links</h6>
-            <ul className="list-unstyled small text-muted">
-              <li className="mb-2">Home</li>
-              <li className="mb-2">Shop</li>
-              <li className="mb-2">My Account</li>
-              <li className="mb-2">Orders</li>
-              <li>Wishlist</li>
+            <ul className="list-unstyled small">
+              <li>
+                <Link to="/" className="footer-link">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/shop" className="footer-link">
+                  Shop
+                </Link>
+              </li>
+              <li>
+                <Link to="/cart" className="footer-link">
+                  Cart
+                </Link>
+              </li>
+              <li>
+                <Link to="/profile" className="footer-link">
+                  My Account
+                </Link>
+              </li>
+              <li>
+                <Link to="/orders" className="footer-link">
+                  Orders
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -103,7 +121,6 @@ export default function Footer() {
             <span>Support</span>
           </div>
         </div>
-
       </div>
     </footer>
   );

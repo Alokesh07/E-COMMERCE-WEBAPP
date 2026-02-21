@@ -8,6 +8,7 @@ import categories from "../../data/categories.json";
 import products from "../../data/products.json";
 
 export default function Header() {
+  const navigate = useNavigate();
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [showLogout, setShowLogout] = useState(false);
@@ -15,6 +16,7 @@ export default function Header() {
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const cartCount = cart.reduce((total, item) => total + item.qty, 0);
+  
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -42,7 +44,6 @@ export default function Header() {
     setSuggestions([]);
   };
 
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   return (

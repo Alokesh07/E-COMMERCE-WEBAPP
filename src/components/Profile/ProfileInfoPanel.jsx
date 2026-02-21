@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pencil, Mail, Phone, User, Calendar, BadgeCheck } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import ProfileImageUploader from "./ProfileImageUploader";
@@ -8,10 +8,30 @@ import "../../styles/profile.css";
 export default function ProfileInfoPanel() {
   const { user, updateUser } = useAuth();
 
+  // Initialize state with default values first (hooks must be at top)
   const [showEdit, setShowEdit] = useState(false);
-  const [email, setEmail] = useState(user.email);
-  const [phone, setPhone] = useState(user.phone);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Use effect to initialize values from user (not conditionally)
+  useEffect(() => {
+    if (user && !isInitialized) {
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+      setIsInitialized(true);
+    }
+  }, [user, isInitialized]);
+
+  // Add safety check - redirect to auth if no user (after all hooks)
+  if (!user) {
+    return (
+      <div className="text-center py-5">
+        <p className="text-muted">Please login to view your profile.</p>
+      </div>
+    );
+  }
 
   const saveChanges = () => {
     updateUser({ email, phone });

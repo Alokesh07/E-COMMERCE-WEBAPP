@@ -120,14 +120,6 @@
   inset: 0;
   z-index: 2;
 }
-/* .image-wrapper::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.55); /* soft white fade */
-  /* z-index: 1; */
-/* } */ */
-
 
 .app-title {
     font-size: 2.5rem;

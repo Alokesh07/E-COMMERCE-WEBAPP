@@ -1,72 +1,367 @@
 [
   {
-    "id": 1,
-    "name": "iPhone 15",
-    "price": 79999,
+    "id": "prod-001",
+    "name": "iPhone 14 Pro",
     "brand": "Apple",
-    "category": "electronics"
+    "category": "mobiles",
+    "price": 129999,
+    "originalPrice": 149999,
+    "discount": 13,
+    "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400",
+    "rating": 4.8,
+    "reviews": 2453,
+    "description": "iPhone 14 Pro with A16 Bionic chip, Dynamic Island, and ProMotion display",
+    "specs": {
+      "RAM": "6GB",
+      "Storage": "256GB",
+      "Battery": "3200mAh",
+      "Warranty": "1 Year"
+    }
   },
-    {
-    "id": 2,
-    "name": "iPhone 17 Pro",
-    "price": 79999,
-    "brand": "Apple",
-    "category": "electronics"
-  },
-    {
-    "id": 3,
-    "name": "Samsung Galaxy S23",
-    "price": 69999,
+  {
+    "id": "prod-002",
+    "name": "Samsung Galaxy S23 Ultra",
     "brand": "Samsung",
-    "category": "electronics"
-  },
-  {
-    "id": 4,
-    "name": "Sony WH-1000XM5",
-    "price": 24999,
-    "brand": "Sony",
-    "category": "electronics"
-  },
-  {
-    "id": 5,
-    "name": "Dell XPS 13",
-    "price": 99999,
-    "brand": "Dell",
-    "category": "computers"
-  },
-  {
-    "id": 6,
-    "name": "MacBook Pro 16",
-    "price": 239999,
-    "brand": "Apple",
-    "category": "computers"
-  },
-  {
-    "id": 7,
-    "name": "HP Spectre x360",
+    "category": "mobiles",
     "price": 119999,
-    "brand": "HP",
-    "category": "computers"
+    "originalPrice": 149999,
+    "discount": 20,
+    "image": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400",
+    "rating": 4.7,
+    "reviews": 1876,
+    "description": "Samsung Galaxy S23 Ultra with 200MP camera, S Pen included",
+    "specs": {
+      "RAM": "12GB",
+      "Storage": "512GB",
+      "Battery": "5000mAh",
+      "Warranty": "1 Year"
+    }
   },
   {
-    "id": 8,
-    "name": "Asus ROG Zephyrus G14",
-    "price": 139999,
-    "brand": "Asus",
-    "category": "computers"
-  },
-  {
-    "id": 9,
-    "name": "Apple Watch Series 9",
-    "price": 39999,
+    "id": "prod-003",
+    "name": "MacBook Pro 14-inch",
     "brand": "Apple",
-    "category": "wearables"
+    "category": "laptops",
+    "price": 199999,
+    "originalPrice": 249999,
+    "discount": 20,
+    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400",
+    "rating": 4.9,
+    "reviews": 3241,
+    "description": "MacBook Pro with M2 Pro chip, 16GB RAM, 512GB SSD",
+    "specs": {
+      "RAM": "16GB",
+      "Storage": "512GB",
+      "Processor": "M2 Pro",
+      "Warranty": "1 Year"
+    }
   },
   {
-    "id": 10,
-    "name": "Samsung Galaxy Watch 6",
-    "price": 34999,
-    "brand": "Samsung",
-    "category": "wearables"
+    "id": "prod-004",
+    "name": "Dell XPS 15",
+    "brand": "Dell",
+    "category": "laptops",
+    "price": 159999,
+    "originalPrice": 189999,
+    "discount": 16,
+    "image": "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=400",
+    "rating": 4.6,
+    "reviews": 1234,
+    "description": "Dell XPS 15 with Intel Core i7, 16GB RAM, 512GB SSD",
+    "specs": {
+      "RAM": "16GB",
+      "Storage": "512GB",
+      "Processor": "i7",
+      "Warranty": "2 Years"
+    }
+  },
+  {
+    "id": "prod-005",
+    "name": "HP Spectre x360",
+    "brand": "HP",
+    "category": "laptops",
+    "price": 129999,
+    "originalPrice": 159999,
+    "discount": 19,
+    "image": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400",
+    "rating": 4.5,
+    "reviews": 876,
+    "description": "HP Spectre x360 2-in-1 laptop with Intel Core i7",
+    "specs": {
+      "RAM": "16GB",
+      "Storage": "512GB",
+      "Processor": "i7",
+      "Warranty": "2 Years"
+    }
+  },
+  {
+    "id": "prod-006",
+    "name": "Lenovo ThinkPad X1 Carbon",
+    "brand": "Lenovo",
+    "category": "laptops",
+    "price": 145999,
+    "originalPrice": 175999,
+    "discount": 17,
+    "image": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400",
+    "rating": 4.7,
+    "reviews": 654,
+    "description": "Lenovo ThinkPad X1 Carbon with Intel Core i7, 16GB RAM",
+    "specs": {
+      "RAM": "16GB",
+      "Storage": "512GB",
+      "Processor": "i7",
+      "Warranty": "3 Years"
+    }
+  },
+  {
+    "id": "prod-007",
+    "name": "Sony WH-1000XM5",
+    "brand": "Sony",
+    "category": "audio",
+    "price": 27990,
+    "originalPrice": 34990,
+    "discount": 20,
+    "image": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400",
+    "rating": 4.8,
+    "reviews": 4532,
+    "description": "Sony WH-1000XM5 wireless noise canceling headphones",
+    "specs": {
+      "Battery": "30 hours",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    "id": "prod-008",
+    "name": "JBL Tune 770NC",
+    "brand": "JBL",
+    "category": "audio",
+    "price": 5999,
+    "originalPrice": 8999,
+    "discount": 33,
+    "image": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400",
+    "rating": 4.4,
+    "reviews": 2341,
+    "description": "JBL Tune 770NC wireless headphones with ANC",
+    "specs": {
+      "Battery": "44 hours",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    "id": "prod-009",
+    "name": "boAt Airdopes 181",
+    "brand": "Boat",
+    "category": "audio",
+    "price": 1299,
+    "originalPrice": 2990,
+    "discount": 57,
+    "image": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400",
+    "rating": 4.2,
+    "reviews": 8765,
+    "description": "boAt Airdopes 181 true wireless earbuds with ENx",
+    "specs": {
+      "Battery": "20 hours",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    "id": "prod-010",
+    "name": "Sony Alpha a7 III",
+    "brand": "Sony",
+    "category": "cameras",
+    "price": 134990,
+    "originalPrice": 159990,
+    "discount": 16,
+    "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400",
+    "rating": 4.9,
+    "reviews": 543,
+    "description": "Sony Alpha a7 III full-frame mirrorless camera body",
+    "specs": {
+      "Storage": "SD Card",
+      "Warranty": "2 Years"
+    }
+  },
+  {
+    "id": "prod-011",
+    "name": "Nike Air Max 270",
+    "brand": "Nike",
+    "category": "footwear",
+    "price": 8999,
+    "originalPrice": 12999,
+    "discount": 31,
+    "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
+    "rating": 4.6,
+    "reviews": 3421,
+    "description": "Nike Air Max 270 men's running shoes",
+    "specs": {
+      "Size": "M",
+      "Color": "Black/White",
+      "Fabric": "Mesh"
+    }
+  },
+  {
+    "id": "prod-012",
+    "name": "Adidas Ultraboost 22",
+    "brand": "Adidas",
+    "category": "footwear",
+    "price": 15999,
+    "originalPrice": 21999,
+    "discount": 27,
+    "image": "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400",
+    "rating": 4.5,
+    "reviews": 1876,
+    "description": "Adidas Ultraboost 22 running shoes",
+    "specs": {
+      "Size": "M",
+      "Color": "Blue",
+      "Fabric": "Boost"
+    }
+  },
+  {
+    "id": "prod-013",
+    "name": "Puma RS-X",
+    "brand": "Puma",
+    "category": "footwear",
+    "price": 6999,
+    "originalPrice": 9999,
+    "discount": 30,
+    "image": "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400",
+    "rating": 4.3,
+    "reviews": 2156,
+    "description": "Puma RS-X casual shoes",
+    "specs": {
+      "Size": "M",
+      "Color": "White",
+      "Fabric": "Synthetic"
+    }
+  },
+  {
+    "id": "prod-014",
+    "name": "Men's Cotton T-Shirt",
+    "brand": "Nike",
+    "category": "mens",
+    "price": 1499,
+    "originalPrice": 2499,
+    "discount": 40,
+    "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+    "rating": 4.4,
+    "reviews": 5678,
+    "description": "Nike men's cotton t-shirt",
+    "specs": {
+      "Size": "L",
+      "Color": "Black",
+      "Fabric": "Cotton",
+      "Fit": "Regular"
+    }
+  },
+  {
+    "id": "prod-015",
+    "name": "Women's Summer Dress",
+    "brand": "Adidas",
+    "category": "womens",
+    "price": 3999,
+    "originalPrice": 5999,
+    "discount": 33,
+    "image": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400",
+    "rating": 4.5,
+    "reviews": 1234,
+    "description": "Adidas women's summer dress",
+    "specs": {
+      "Size": "M",
+      "Color": "Blue",
+      "Fabric": "Polyester",
+      "Fit": "Slim"
+    }
+  },
+  {
+    "id": "prod-016",
+    "name": "Leather Wallet",
+    "brand": "Puma",
+    "category": "accessories",
+    "price": 1999,
+    "originalPrice": 2999,
+    "discount": 33,
+    "image": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400",
+    "rating": 4.2,
+    "reviews": 876,
+    "description": "Puma leather wallet for men",
+    "specs": {
+      "Color": "Brown",
+      "Fabric": "Leather"
+    }
+  },
+  {
+    "id": "prod-017",
+    "name": "OnePlus 11",
+    "brand": "OnePlus",
+    "category": "mobiles",
+    "price": 56999,
+    "originalPrice": 69999,
+    "discount": 19,
+    "image": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400",
+    "rating": 4.6,
+    "reviews": 3456,
+    "description": "OnePlus 11 5G with Hasselblad camera",
+    "specs": {
+      "RAM": "16GB",
+      "Storage": "256GB",
+      "Battery": "5000mAh",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    "id": "prod-018",
+    "name": "Realme GT 3",
+    "brand": "Realme",
+    "category": "mobiles",
+    "price": 37999,
+    "originalPrice": 49999,
+    "discount": 24,
+    "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+    "rating": 4.5,
+    "reviews": 2341,
+    "description": "Realme GT 3 with 240W charging",
+    "specs": {
+      "RAM": "16GB",
+      "Storage": "256GB",
+      "Battery": "4600mAh",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    "id": "prod-019",
+    "name": "Asus ROG Strix G15",
+    "brand": "Asus",
+    "category": "laptops",
+    "price": 144990,
+    "originalPrice": 179990,
+    "discount": 19,
+    "image": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400",
+    "rating": 4.7,
+    "reviews": 987,
+    "description": "Asus ROG Strix G15 gaming laptop with RTX 3060",
+    "specs": {
+      "RAM": "16GB",
+      "Storage": "1TB",
+      "Processor": "Ryzen 7",
+      "Warranty": "1 Year"
+    }
+  },
+  {
+    "id": "prod-020",
+    "name": "Bose QuietComfort 45",
+    "brand": "Sony",
+    "category": "audio",
+    "price": 22900,
+    "originalPrice": 29900,
+    "discount": 23,
+    "image": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400",
+    "rating": 4.7,
+    "reviews": 3214,
+    "description": "Bose QuietComfort 45 wireless noise canceling headphones",
+    "specs": {
+      "Battery": "24 hours",
+      "Warranty": "1 Year"
+    }
   }
 ]

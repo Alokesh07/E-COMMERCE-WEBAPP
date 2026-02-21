@@ -6,9 +6,11 @@ import "../../styles/profile.css";
 export default function AddressPanel() {
   const { user, updateUser } = useAuth();
 
-  const [addresses, setAddresses] = useState(
-    user.addresses || JSON.parse(localStorage.getItem("addresses")) || []
-  );
+  // Initialize state with default values first (hooks must be at top)
+  const [addresses, setAddresses] = useState(() => {
+    const stored = localStorage.getItem("addresses");
+    return stored ? JSON.parse(stored) : [];
+  });
 
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -20,11 +22,22 @@ export default function AddressPanel() {
     landmark: "",
   });
 
-  /* -------------------- SYNC TO LOCAL STORAGE -------------------- */
+  // Use effect to sync to local storage
   useEffect(() => {
     localStorage.setItem("addresses", JSON.stringify(addresses));
-    updateUser({ addresses });
-  }, [addresses]);
+    if (user) {
+      updateUser({ addresses });
+    }
+  }, [addresses, user, updateUser]);
+
+  // Don't render if no user - use conditional rendering instead of early return
+  if (!user) {
+    return (
+      <div className="text-center py-5">
+        <p className="text-muted">Please login to view your addresses.</p>
+      </div>
+    );
+  }
 
   /* -------------------- ADD / UPDATE ADDRESS -------------------- */
   const saveAddress = () => {
@@ -40,7 +53,7 @@ export default function AddressPanel() {
         {
           id: Date.now(),
           ...form,
-          isDefault: addresses.length === 0, // first one default
+          isDefault: addresses.length === 0,
         },
       ]);
     }
@@ -52,7 +65,6 @@ export default function AddressPanel() {
   const removeAddress = (id) => {
     const filtered = addresses.filter((a) => a.id !== id);
 
-    // ensure at least one default
     if (!filtered.some((a) => a.isDefault) && filtered.length > 0) {
       filtered[0].isDefault = true;
     }
@@ -91,7 +103,6 @@ export default function AddressPanel() {
   return (
     <>
       <div className="address-card-container">
-        {/* HEADER */}
         <div className="address-header-bar">
           <h4 className="m-0">Saved Addresses</h4>
 
@@ -100,7 +111,6 @@ export default function AddressPanel() {
           </button>
         </div>
 
-        {/* LIST */}
         {addresses.length === 0 && (
           <p className="text-muted mt-3">No addresses saved yet.</p>
         )}
@@ -127,7 +137,6 @@ export default function AddressPanel() {
               <small className="text-muted">Landmark: {a.landmark}</small>
             )}
 
-            {/* ACTIONS */}
             <div className="address-actions">
               {!a.isDefault && (
                 <button
@@ -159,7 +168,6 @@ export default function AddressPanel() {
         ))}
       </div>
 
-      {/* MODAL */}
       {showForm && (
         <div
           className="modal fade show d-block"
