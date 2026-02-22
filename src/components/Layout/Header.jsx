@@ -1,22 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, User, ShoppingCart, Power } from "lucide-react";
+import { Menu, User, ShoppingCart, Shield } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+import { useAdmin } from "../../context/AdminContext";
 import LogoutConfirmModal from "../Profile/LogoutConfirmModal";
-import categories from "../../data/categories.json";
-import products from "../../data/products.json";
 
 export default function Header() {
   const navigate = useNavigate();
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [showLogout, setShowLogout] = useState(false);
-  const { cart } = useCart();
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const cartCount = cart.reduce((total, item) => total + item.qty, 0);
+  const [products, setProducts] = useState([]);
+  const [loadingId, setLoadingId] = useState(null);
   
+  const { cart, addToCart, updateQty } = useCart();
+  const { user } = useAuth();
+  const { admin } = useAdmin();
+  
+  const cartCount = cart.reduce((total, item) => total + item.qty, 0);
+
+  // Fetch categories and products from API on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch categories
+        const categoriesRes = await fetch('http://localhost:5000/api/categories');
+        const categoriesData = await categoriesRes.json();
+        if (Array.isArray(categoriesData)) {
+          setCategories(categoriesData);
+        }
+        
+        // Fetch products
+        const productsRes = await fetch('http://localhost:5000/api/products');
+        const productsData = await productsRes.json();
+        if (Array.isArray(productsData)) {
+          setProducts(productsData);
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -29,14 +59,15 @@ export default function Header() {
     const matches = products
       .filter(
         (p) =>
-          p.name.toLowerCase().includes(value.toLowerCase()) ||
+          p.name?.toLowerCase().includes(value.toLowerCase()) ||
           p.brand?.toLowerCase().includes(value.toLowerCase()) ||
-          p.category?.toLowerCase().includes(value.toLowerCase()),
+          p.category?.toLowerCase().includes(value.toLowerCase())
       )
       .slice(0, 5);
 
     setSuggestions(matches);
   };
+
   const handleSearchSubmit = (query) => {
     if (!query.trim()) return;
     navigate(`/shop?search=${encodeURIComponent(query)}`);
@@ -44,7 +75,21 @@ export default function Header() {
     setSuggestions([]);
   };
 
-  const { user } = useAuth();
+  const getQty = (id) => cart.find((p) => p.id === id)?.qty || 0;
+
+  const handleAdd = (product) => {
+    setLoadingId(product._id || product.id);
+    setTimeout(() => {
+      addToCart({
+        id: product._id || product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        brand: product.brand
+      });
+      setLoadingId(null);
+    }, 700);
+  };
 
   return (
     <>
@@ -65,13 +110,6 @@ export default function Header() {
         </button>
 
         {/* SEARCH */}
-        {/* <div className="mx-auto w-50 d-none d-lg-block">
-          <input
-            className="form-control rounded-pill"
-            placeholder="Search products, brands, and more..."
-          />
-        </div> */}
-        {/* SEARCH */}
         <div className="mx-auto w-50 d-none d-lg-block position-relative">
           <input
             className="form-control rounded-pill px-4"
@@ -87,7 +125,7 @@ export default function Header() {
             <div className="position-absolute bg-white shadow rounded w-100 mt-1 z-3">
               {suggestions.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id || item.id}
                   className="px-3 py-2 suggestion-item"
                   style={{ cursor: "pointer" }}
                   onClick={() => handleSearchSubmit(item.name)}
@@ -102,36 +140,31 @@ export default function Header() {
 
         {/* RIGHT ICONS */}
         <div className="d-flex align-items-center gap-3">
+          {/* ADMIN LOGIN BUTTON - Show when not logged in as admin */}
+          {!admin && (
+            <Link to="/admin-login" className="btn btn-outline-primary d-flex align-items-center gap-2">
+              <Shield size={18} />
+              <span className="d-none d-md-inline">Admin</span>
+            </Link>
+          )}
+
           {/* USER PROFILE */}
           <button
             className="btn btn-light d-flex align-items-center gap-2"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate(user ? "/profile" : "/auth")}
           >
             <User size={20} />
             {user && <span className="small fw-semibold">{user.name}</span>}
+            {admin && <span className="small fw-semibold text-primary">Admin</span>}
           </button>
-
-          {/* LOGOUT POWER BUTTON */}
-          {user && (
-            <button
-              className="btn btn-outline-danger"
-              title="Logout"
-              onClick={() => setShowLogout(true)}
-            >
-              <Power size={18} />
-            </button>
-          )}
 
           {/* CART */}
           <button
             className="btn btn-light position-relative rounded-circle"
             title="Cart"
-            onClick={() => navigate("/cart")}
+            onClick={() => navigate(user ? "/cart" : "/auth")}
           >
             <ShoppingCart size={20} />
-            {/* <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              0
-            </span> */}
             {cartCount > 0 && (
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {cartCount}
@@ -148,7 +181,7 @@ export default function Header() {
       />
 
       {/* ================= CATEGORY MODAL ================= */}
-      {showCategoryModal && (
+      {showCategoryModal && categories.length > 0 && (
         <div
           className="modal fade show"
           style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
@@ -172,14 +205,14 @@ export default function Header() {
                 {!activeCategory ? (
                   <div className="row g-4">
                     {categories.map((cat) => (
-                      <div className="col-md-3" key={cat.id}>
+                      <div className="col-md-3" key={cat._id || cat.id}>
                         <div
                           className="card h-100 text-center category-card"
                           style={{ cursor: "pointer" }}
                           onClick={() => setActiveCategory(cat)}
                         >
                           <img
-                            src={cat.image}
+                            src={cat.image || 'https://via.placeholder.com/200x200?text=Category'}
                             className="card-img-top"
                             alt=""
                           />
@@ -200,11 +233,11 @@ export default function Header() {
                     </button>
 
                     <div className="row g-4">
-                      {activeCategory.subcategories.map((sub) => (
-                        <div className="col-md-3" key={sub.id}>
+                      {activeCategory.subcategories?.map((sub) => (
+                        <div className="col-md-3" key={sub._id || sub.id}>
                           <div className="card h-100 text-center subcategory-card">
                             <img
-                              src={sub.image}
+                              src={sub.image || 'https://via.placeholder.com/200x200?text=Subcategory'}
                               className="card-img-top"
                               alt=""
                             />

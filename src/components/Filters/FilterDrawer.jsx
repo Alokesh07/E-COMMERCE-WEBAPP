@@ -4,14 +4,14 @@ import filtersData from "../../data/filters.json";
 import SubFilterDrawer from "./SubFilterDrawer";
 import { useFilters } from "../../context/FilterContext";
 
-export default function FilterDrawer({ activeCategory }) {
+export default function FilterDrawer() {
   const [open, setOpen] = useState(false);
   const [subFilter, setSubFilter] = useState(null);
 
-  const { filters, setFilters, clearFilters } = useFilters();
+  const { filters, setFilters, clearFilters, categories, activeCategory, selectCategory } = useFilters();
 
-  // derive category-specific filters SAFELY
-  const categoryKey = activeCategory?.id; // electronics | fashion | etc
+  // Get category-specific filters
+  const categoryKey = activeCategory?.slug;
   const categoryFilters = categoryKey
     ? filtersData[categoryKey]
     : null;
@@ -26,6 +26,43 @@ export default function FilterDrawer({ activeCategory }) {
         <SlidersHorizontal size={18} />
         Filters
       </button>
+
+      {/* CATEGORIES SECTION */}
+      <div className="mt-3">
+        <h6 className="fw-semibold mb-2">Categories</h6>
+        <div className="category-list">
+          {categories.map((category) => (
+            <div key={category._id} className="mb-2">
+              <button
+                className={`btn btn-sm w-100 text-start d-flex justify-content-between align-items-center ${
+                  activeCategory?._id === category._id ? 'btn-dark' : 'btn-light'
+                }`}
+                onClick={() => selectCategory(category)}
+              >
+                <span>{category.name}</span>
+                {category.subcategories?.length > 0 && (
+                  <ChevronRight size={14} />
+                )}
+              </button>
+              {/* Subcategories */}
+              {activeCategory?._id === category._id && category.subcategories?.length > 0 && (
+                <div className="ms-3 mt-2">
+                  {category.subcategories.map((sub) => (
+                    <button
+                      key={sub._id}
+                      className="btn btn-sm btn-link text-start w-100 text-decoration-none text-dark"
+                    >
+                      {sub.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <hr />
 
       {/* MAIN DRAWER */}
       {open && (
