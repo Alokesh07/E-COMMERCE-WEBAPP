@@ -6,10 +6,10 @@ import productsData from "../data/products.json";
 import { 
   Package, ShoppingCart, 
   LogOut, Eye, Edit, Trash2, Plus, Search,
-  RefreshCw
+  RefreshCw, Grid, List
 } from "lucide-react";
 
-const STATUS_OPTIONS = ["PLACED", "CONFIRMED", "PACKED", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED"];
+const STATUS_OPTIONS = ["PLACED", "CONFIRMED", "PACKED", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"];
 
 export default function AdminDashboard() {
   const { admin, logout } = useAdmin();
@@ -75,58 +75,61 @@ export default function AdminDashboard() {
         <div className="admin-logo">
           Shop<span>X</span> Admin
         </div>
-        <nav className="admin-nav">
-          <Link to="/" className="admin-nav-link">Home</Link>
-        </nav>
-        <div className="d-flex align-items-center gap-3">
-          <span>Welcome, {admin?.username}</span>
+        <div className="admin-nav">
           <button 
-            className="btn btn-sm btn-outline-light"
-            onClick={handleLogout}
+            className={`btn btn-sm ${activeTab === 'products' ? 'btn-light' : 'btn-outline-light'}`}
+            onClick={() => setActiveTab("products")}
           >
-            <LogOut size={16} /> Logout
+            <Package size={16} className="me-1" />
+            Products
+          </button>
+          <button 
+            className={`btn btn-sm ${activeTab === 'orders' ? 'btn-light' : 'btn-outline-light'}`}
+            onClick={() => setActiveTab("orders")}
+          >
+            <ShoppingCart size={16} className="me-1" />
+            Orders
+          </button>
+          <Link to="/admin/add-product" className="btn btn-outline-light btn-sm">
+            <Plus size={16} className="me-1" />
+            Add Product
+          </Link>
+          <Link to="/admin/categories" className="btn btn-outline-light btn-sm">
+            <Grid size={16} className="me-1" />
+            Categories
+          </Link>
+          <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
+            <LogOut size={16} />
           </button>
         </div>
       </header>
 
-      {/* Stats */}
-      <div className="admin-container">
-        <div className="admin-stats">
-          <div className="stat-card blue">
-            <h3>Total Orders</h3>
-            <div className="stat-value">{totalOrders}</div>
+      <div className="admin-content">
+        {/* Stats Cards */}
+        <div className="row mb-4">
+          <div className="col-md-3">
+            <div className="stat-card">
+              <h3>₹{totalRevenue.toLocaleString()}</h3>
+              <p>Total Revenue</p>
+            </div>
           </div>
-          <div className="stat-card green">
-            <h3>Revenue</h3>
-            <div className="stat-value">₹{totalRevenue.toLocaleString()}</div>
+          <div className="col-md-3">
+            <div className="stat-card">
+              <h3>{totalOrders}</h3>
+              <p>Total Orders</p>
+            </div>
           </div>
-          <div className="stat-card orange">
-            <h3>Pending</h3>
-            <div className="stat-value">{pendingOrders}</div>
+          <div className="col-md-3">
+            <div className="stat-card">
+              <h3>{pendingOrders}</h3>
+              <p>Pending Orders</p>
+            </div>
           </div>
-          <div className="stat-card yellow">
-            <h3>Delivered</h3>
-            <div className="stat-value">{deliveredOrders}</div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="mb-4">
-          <div className="btn-group">
-            <button 
-              className={`btn ${activeTab === 'products' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setActiveTab("products")}
-            >
-              <Package size={16} className="me-2" />
-              Products
-            </button>
-            <button 
-              className={`btn ${activeTab === 'orders' ? 'btn-primary' : 'btn-outline-primary'}`}
-              onClick={() => setActiveTab("orders")}
-            >
-              <ShoppingCart size={16} className="me-2" />
-              Orders
-            </button>
+          <div className="col-md-3">
+            <div className="stat-card">
+              <h3>{deliveredOrders}</h3>
+              <p>Delivered Orders</p>
+            </div>
           </div>
         </div>
 
@@ -134,7 +137,7 @@ export default function AdminDashboard() {
         <div className="mb-4">
           <div className="input-group" style={{ maxWidth: "400px" }}>
             <span className="input-group-text">
-              <Search size={16} />
+              <Search size={18} />
             </span>
             <input
               type="text"
@@ -146,81 +149,82 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Products Table */}
+        {/* Products Tab */}
         {activeTab === "products" && (
-          <div className="admin-table-container">
-            <div className="admin-table-header">
-              <h3>Product Management</h3>
-              <button className="btn btn-primary btn-sm">
-                <Plus size={16} className="me-1" /> Add Product
-              </button>
+          <div>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h4>Products ({filteredProducts.length})</h4>
+              <Link to="/admin/add-product" className="btn btn-primary btn-sm">
+                <Plus size={16} className="me-1" />
+                Add Product
+              </Link>
             </div>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Brand</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.map(product => (
-                  <tr key={product.id}>
-                    <td>
-                      <div className="product-cell">
-                        <img src={product.image} alt={product.name} />
-                        <div>
-                          <div style={{ fontWeight: 500 }}>{product.name}</div>
-                          <div className="text-muted" style={{ fontSize: '12px' }}>
-                            {product.discount}% off
+            <div className="table-responsive">
+              <table className="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredProducts.map(product => (
+                    <tr key={product.id}>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <img 
+                            src={product.image} 
+                            alt={product.name}
+                            style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                            className="rounded"
+                          />
+                          <div>
+                            <div style={{ fontWeight: 500 }}>{product.name}</div>
+                            <div className="text-muted" style={{ fontSize: '12px' }}>
+                              {product.category}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>{product.brand}</td>
-                    <td>{product.category}</td>
-                    <td>₹{product.price.toLocaleString()}</td>
-                    <td>
-                      <span className="status-badge active">In Stock</span>
-                    </td>
-                    <td>
-                      <button className="action-btn me-1" title="View">
-                        <Eye size={14} />
-                      </button>
-                      <button className="action-btn me-1" title="Edit">
-                        <Edit size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td>{product.brand}</td>
+                      <td>{product.category}</td>
+                      <td>₹{product.price?.toLocaleString()}</td>
+                      <td>
+                        <span className={`badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}`}>
+                          {product.stock || 0}
+                        </span>
+                      </td>
+                      <td>
+                        <button className="action-btn me-1" title="Edit">
+                          <Edit size={14} />
+                        </button>
+                        <button className="action-btn" title="Delete" style={{ color: '#ff6161' }}>
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        {/* Orders Table */}
+        {/* Orders Tab */}
         {activeTab === "orders" && (
-          <div className="admin-table-container">
-            <div className="admin-table-header">
-              <h3>Order Management</h3>
-              <button 
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setOrders(getAllOrders())}
-              >
-                <RefreshCw size={14} className="me-1" /> Refresh
-              </button>
-            </div>
+          <div>
+            <h4 className="mb-3">Orders ({filteredOrders.length})</h4>
             {filteredOrders.length === 0 ? (
               <div className="text-center py-5">
-                <Package size={48} className="text-muted mb-3" />
-                <h5>No orders found</h5>
-                <p className="text-muted">Orders will appear here when customers place them.</p>
+                <ShoppingCart size={48} className="text-muted mb-3" />
+                <p className="text-muted">No orders found</p>
               </div>
             ) : (
-              <table className="admin-table">
+              <table className="table table-hover">
                 <thead>
                   <tr>
                     <th>Order ID</th>

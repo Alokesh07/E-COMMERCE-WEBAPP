@@ -10,6 +10,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { FilterProvider } from "./context/FilterContext";
 import { CartProvider } from "./context/CartContext";
 import { AdminProvider } from "./context/AdminContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 // BOOTSTRAP
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -23,7 +24,9 @@ root.render(
       <AuthProvider>
         <FilterProvider>
           <CartProvider>
-            <App />
+            <NotificationProvider>
+              <App />
+            </NotificationProvider>
           </CartProvider>
         </FilterProvider>
       </AuthProvider>

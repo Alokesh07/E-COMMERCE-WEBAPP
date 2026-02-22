@@ -1,52 +1,94 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import seedData from "../data/users.seed.json";
+import { authAPI } from "../utils/api";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("loggedInUser")) || null
-  );
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Initialize seed users if not exists
+  // Check for existing user session on mount
   useEffect(() => {
-    const existingUsers = localStorage.getItem("users");
-    if (!existingUsers || existingUsers === "[]") {
-      localStorage.setItem("users", JSON.stringify(seedData.users));
-    }
+    const checkAuth = async () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        try {
+          const userData = await authAPI.getCurrentUser();
+          setUser(userData.user || userData);
+        } catch (err) {
+          console.error("Auth check failed:", err);
+          localStorage.removeItem("token");
+        }
+      }
+      setLoading(false);
+    };
+    checkAuth();
   }, []);
 
-  const login = (userData) => {
-    // Ensure user has addresses
-    const userWithAddresses = {
-      ...userData,
-      addresses: userData.addresses || [],
-      phone: userData.phone || ''
-    };
-    setUser(userWithAddresses);
-    localStorage.setItem("loggedInUser", JSON.stringify(userWithAddresses));
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("loggedInUser");
+    }
+  }, [user]);
+
+  const login = async (credentials) => {
+    try {
+      setLoading(true);
+      const response = await authAPI.login(credentials);
+      
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        setUser(response.user || response);
+        return { success: true };
+      }
+      return { success: false, message: "Login failed" };
+    } catch (error) {
+      return { success: false, message: error.message || "Invalid credentials" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (userData) => {
+    try {
+      setLoading(true);
+      const response = await authAPI.register(userData);
+      
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        setUser(response.user || response);
+        return { success: true };
+      }
+      return { success: false, message: "Registration failed" };
+    } catch (error) {
+      return { success: false, message: error.message || "Registration failed" };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("token");
   };
 
-  const updateUser = (updates) => {
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
-    
-    // Also update in users list
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const updatedUsers = users.map(u => 
-      u.id === updatedUser.id ? updatedUser : u
-    );
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
+  const updateUser = async (updates) => {
+    try {
+      const response = await authAPI.updateProfile(updates);
+      const updatedUser = { ...user, ...response.user };
+      setUser(updatedUser);
+      localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+      return { success: true };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

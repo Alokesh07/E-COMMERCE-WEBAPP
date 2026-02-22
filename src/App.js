@@ -12,6 +12,8 @@ import OrderSuccess from "./pages/OrderSuccess";
 import OrderTracking from "./pages/OrderTracking";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AddProduct from "./pages/AddProduct";
+import CategoryManagement from "./pages/CategoryManagement";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
       {/* ================= ADMIN ROUTES ================= */}
       <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/add-product" element={<AddProduct />} />
+      <Route path="/admin/categories" element={<CategoryManagement />} />
 
       {/* ================= MAIN LAYOUT (HEADER + SIDEBAR) ================= */}
       <Route

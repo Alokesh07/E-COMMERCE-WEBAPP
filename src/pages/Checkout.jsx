@@ -1,7 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
-import { MapPin, CreditCard, Wallet, Banknote, Check, Navigation, CreditCardIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MapPin, CreditCard, Wallet, Banknote, Check, QrCode } from "lucide-react";
+import UPIPayment from "../components/Payment/UPIPayment";
+import CardManagement from "../components/Profile/CardManagement";
+import { ordersAPI, cardsAPI } from "../utils/api";
 
 export default function Checkout() {
   const { state } = useLocation();
@@ -11,8 +14,12 @@ export default function Checkout() {
   const items = state?.items || [];
   const [payment, setPayment] = useState("upi");
   const [selectedAddress, setSelectedAddress] = useState(0);
+  const [showUPI, setShowUPI] = useState(false);
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [savedCards, setSavedCards] = useState([]);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Ensure user has addresses array
   const userAddresses = user?.addresses || [];
   const hasAddresses = userAddresses.length > 0;
 
@@ -24,36 +31,110 @@ export default function Checkout() {
 
   const orderId = "ORD" + Date.now();
 
-  const handlePayment = () => {
+  useEffect(() => {
+    if (payment === "card") {
+      fetchSavedCards();
+    }
+  }, [payment]);
+
+  const fetchSavedCards = async () => {
+    try {
+      const cards = await cardsAPI.getAll();
+      setSavedCards(cards);
+      if (cards.length > 0) {
+        const defaultCard = cards.find(c => c.isDefault) || cards[0];
+        setSelectedCard(defaultCard._id);
+      }
+    } catch (error) {
+      console.error("Error fetching cards:", error);
+    }
+  };
+
+  const handlePayment = async () => {
     if (!hasAddresses) return;
     
-    // Save order to localStorage with userId
-    const newOrder = {
-      id: orderId,
-      userId: user?.id,
-      items: items,
-      total: total,
-      status: "PLACED",
-      date: new Date().toISOString(),
-      address: userAddresses[selectedAddress],
-      paymentMethod: payment,
-    };
+    setLoading(true);
     
-    // Use orderService to save
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push(newOrder);
-    localStorage.setItem("orders", JSON.stringify(orders));
-    
-    navigate("/order-success", { state: { orderId } });
+    try {
+      const orderData = {
+        items: items.map(item => ({
+          productId: item.id,
+          name: item.name,
+          brand: item.brand,
+          image: item.image,
+          price: item.price,
+          qty: item.qty
+        })),
+        total: total,
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        discount: discount,
+        paymentMethod: payment,
+        address: userAddresses[selectedAddress],
+        upiTransactionId: "",
+        cardLast4: selectedCard ? savedCards.find(c => c._id === selectedCard)?.cardLast4 : ""
+      };
+
+      const result = await ordersAPI.create(orderData);
+      navigate("/order-success", { state: { orderId: result.order.orderId } });
+    } catch (error) {
+      console.error("Error creating order:", error);
+      const newOrder = {
+        id: orderId,
+        userId: user?.id,
+        items: items,
+        total: total,
+        status: "PLACED",
+        date: new Date().toISOString(),
+        address: userAddresses[selectedAddress],
+        paymentMethod: payment,
+      };
+      
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      orders.push(newOrder);
+      localStorage.setItem("orders", JSON.stringify(orders));
+      
+      navigate("/order-success", { state: { orderId } });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUPISuccess = async (paymentData) => {
+    setLoading(true);
+    try {
+      const orderData = {
+        items: items.map(item => ({
+          productId: item.id,
+          name: item.name,
+          brand: item.brand,
+          image: item.image,
+          price: item.price,
+          qty: item.qty
+        })),
+        total: total,
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        discount: discount,
+        paymentMethod: "upi",
+        address: userAddresses[selectedAddress],
+        upiTransactionId: paymentData.transactionId
+      };
+
+      const result = await ordersAPI.create(orderData);
+      navigate("/order-success", { state: { orderId: result.order.orderId } });
+    } catch (error) {
+      console.error("Error creating order:", error);
+      navigate("/order-success", { state: { orderId } });
+    }
+    setLoading(false);
   };
 
   return (
     <div className="checkout-page">
       <div className="container">
         <div className="checkout-container">
-          {/* Main Content */}
           <div className="checkout-main">
-            {/* Address Section */}
             <div className="checkout-section">
               <div className="section-header">
                 <div className="section-icon">
@@ -92,7 +173,6 @@ export default function Checkout() {
               )}
             </div>
 
-            {/* Payment Section */}
             <div className="checkout-section">
               <div className="section-header">
                 <div className="section-icon">
@@ -102,44 +182,116 @@ export default function Checkout() {
               </div>
 
               <div className={`payment-option ${payment === 'upi' ? 'selected' : ''}`}
-                onClick={() => setPayment("upi")}>
+                onClick={() => { setPayment("upi"); setShowUPI(false); }}>
                 <input type="radio" checked={payment === "upi"} readOnly />
-                <div>
-                  <div className="payment-label">UPI</div>
-                  <div className="payment-info">Pay using Google Pay, PhonePe, Paytm</div>
+                <div className="d-flex align-items-center gap-2">
+                  <QrCode size={20} />
+                  <div>
+                    <div className="payment-label">UPI QR Code</div>
+                    <div className="payment-info">Scan QR to pay via any UPI app</div>
+                  </div>
                 </div>
               </div>
 
               <div className={`payment-option ${payment === 'card' ? 'selected' : ''}`}
-                onClick={() => setPayment("card")}>
+                onClick={() => { setPayment("card"); setShowCardForm(false); }}>
                 <input type="radio" checked={payment === "card"} readOnly />
-                <div>
-                  <div className="payment-label">Credit / Debit Card</div>
-                  <div className="payment-info">Visa, Mastercard, RuPay</div>
+                <div className="d-flex align-items-center gap-2">
+                  <CreditCard size={20} />
+                  <div>
+                    <div className="payment-label">Credit / Debit Card</div>
+                    <div className="payment-info">Visa, Mastercard, RuPay</div>
+                  </div>
                 </div>
               </div>
 
               <div className={`payment-option ${payment === 'net' ? 'selected' : ''}`}
-                onClick={() => setPayment("net")}>
+                onClick={() => { setPayment("net"); setShowUPI(false); }}>
                 <input type="radio" checked={payment === "net"} readOnly />
-                <div>
-                  <div className="payment-label">Net Banking</div>
-                  <div className="payment-info">All major banks supported</div>
+                <div className="d-flex align-items-center gap-2">
+                  <Banknote size={20} />
+                  <div>
+                    <div className="payment-label">Net Banking</div>
+                    <div className="payment-info">All major banks supported</div>
+                  </div>
                 </div>
               </div>
 
               <div className={`payment-option ${payment === 'cod' ? 'selected' : ''}`}
-                onClick={() => setPayment("cod")}>
+                onClick={() => { setPayment("cod"); setShowUPI(false); }}>
                 <input type="radio" checked={payment === "cod"} readOnly />
-                <div>
-                  <div className="payment-label">Cash on Delivery</div>
-                  <div className="payment-info">Pay when you receive (+₹30)</div>
+                <div className="d-flex align-items-center gap-2">
+                  <Wallet size={20} />
+                  <div>
+                    <div className="payment-label">Cash on Delivery</div>
+                    <div className="payment-info">Pay when you receive (+₹30)</div>
+                  </div>
                 </div>
               </div>
+
+              {payment === "upi" && (
+                <div className="mt-3 p-3 border rounded">
+                  <button 
+                    className="btn btn-link p-0 mb-2" 
+                    onClick={() => setShowUPI(!showUPI)}
+                  >
+                    {showUPI ? "Hide QR Code" : "Show QR Code"}
+                  </button>
+                  {showUPI && (
+                    <UPIPayment 
+                      amount={total} 
+                      onSuccess={handleUPISuccess}
+                      onCancel={() => setShowUPI(false)}
+                    />
+                  )}
+                </div>
+              )}
+
+              {payment === "card" && (
+                <div className="mt-3">
+                  {savedCards.length > 0 ? (
+                    <div className="mb-3">
+                      <label className="form-label">Select Saved Card</label>
+                      {savedCards.map(card => (
+                        <div 
+                          key={card._id}
+                          className={`card p-2 mb-2 ${selectedCard === card._id ? 'border-primary' : ''}`}
+                          style={{ cursor: "pointer" }}
+                          onClick={() => setSelectedCard(card._id)}
+                        >
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <small>•••• {card.cardLast4}</small>
+                              <small className="text-muted ms-2">{card.expiryMonth}/{card.expiryYear}</small>
+                            </div>
+                            {card.isDefault && <span className="badge bg-primary">Default</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-3">
+                      <CreditCard size={32} className="text-muted mb-2" />
+                      <p className="text-muted small">No saved cards</p>
+                    </div>
+                  )}
+                  <button 
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={() => setShowCardForm(!showCardForm)}
+                  >
+                    {showCardForm ? "Cancel" : "Add New Card"}
+                  </button>
+                  
+                  {showCardForm && (
+                    <div className="mt-3">
+                      <CardManagement />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Order Summary Sidebar */}
           <div className="order-summary">
             <h3>Order Summary</h3>
             
@@ -197,9 +349,9 @@ export default function Checkout() {
             <button 
               className="checkout-btn w-100 mt-3" 
               onClick={handlePayment}
-              disabled={!hasAddresses}
+              disabled={!hasAddresses || loading || (payment === "upi" && showUPI)}
             >
-              Place Order
+              {loading ? "Processing..." : "Place Order"}
             </button>
           </div>
         </div>

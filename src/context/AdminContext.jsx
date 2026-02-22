@@ -1,47 +1,56 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { adminAPI } from "../utils/api";
 
 const AdminContext = createContext();
 
-// Hardcoded admin credentials
-const ADMIN_CREDENTIALS = {
-  username: "admin",
-  password: "admin123",
-  email: "admin@shopx.com"
-};
-
 export function AdminProvider({ children }) {
-  const [admin, setAdmin] = useState(
-    JSON.parse(localStorage.getItem("admin")) || null
-  );
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Check for existing admin session on mount
+  useEffect(() => {
+    const storedAdmin = localStorage.getItem("admin");
+    const storedToken = localStorage.getItem("adminToken");
+    if (storedAdmin && storedToken) {
+      setAdmin(JSON.parse(storedAdmin));
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("admin", JSON.stringify(admin));
+    if (admin) {
+      localStorage.setItem("admin", JSON.stringify(admin));
+    } else {
+      localStorage.removeItem("admin");
+    }
   }, [admin]);
 
-  const login = (credentials) => {
-    if (
-      credentials.username === ADMIN_CREDENTIALS.username &&
-      credentials.password === ADMIN_CREDENTIALS.password
-    ) {
-      const adminData = {
-        username: ADMIN_CREDENTIALS.username,
-        email: ADMIN_CREDENTIALS.email,
-        role: "admin"
-      };
-      setAdmin(adminData);
-      localStorage.setItem("admin", JSON.stringify(adminData));
-      return { success: true };
+  const login = async (credentials) => {
+    try {
+      setLoading(true);
+      const response = await adminAPI.login(credentials);
+      
+      if (response.token) {
+        localStorage.setItem("adminToken", response.token);
+        setAdmin(response.admin);
+        return { success: true };
+      }
+      return { success: false, message: "Login failed" };
+    } catch (error) {
+      return { success: false, message: error.message || "Invalid credentials" };
+    } finally {
+      setLoading(false);
     }
-    return { success: false, message: "Invalid credentials" };
   };
 
   const logout = () => {
     setAdmin(null);
     localStorage.removeItem("admin");
+    localStorage.removeItem("adminToken");
   };
 
   return (
-    <AdminContext.Provider value={{ admin, login, logout }}>
+    <AdminContext.Provider value={{ admin, login, logout, loading }}>
       {children}
     </AdminContext.Provider>
   );
