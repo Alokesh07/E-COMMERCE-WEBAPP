@@ -8,7 +8,8 @@ const cardSchema = new mongoose.Schema({
   },
   cardNumber: {
     type: String,
-    required: true
+    required: false,
+    select: false
   },
   cardLast4: {
     type: String,
