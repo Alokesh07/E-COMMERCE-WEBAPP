@@ -1,0 +1,24 @@
+/* Header visual polish */
+.navbar{padding:12px 20px}
+.navbar-brand{font-weight:900; letter-spacing:0.6px}
+.navbar .btn-outline-dark{border-radius:10px}
+.navbar input.form-control{height:44px; box-shadow:0 6px 20px rgba(16,24,40,0.06)}
+.suggestion-item{padding:8px 12px}
+.suggestion-item:hover{background:#f8fafc}
+.navbar .btn-light{background:#fff; border:1px solid #eef2ff; padding:8px 12px; border-radius:10px}
+.navbar .btn-outline-primary{border-radius:10px}
+.navbar .badge{font-size:11px; padding:4px 6px}
+@media (max-width:992px){.navbar .mx-auto{display:none}}
+
+/* Mobile header tweaks */
+@media (max-width:768px){
+	.navbar{padding:10px}
+	.navbar-brand{font-size:18px}
+	.navbar .btn-outline-dark{display:none}
+	.navbar .btn-outline-primary{padding:8px 10px}
+	.navbar input.form-control{display:none}
+	.suggestion-item{font-size:13px}
+}
+
+/* Ensure autosuggest overlays nicely on small screens */
+.position-absolute.bg-white.z-3{left:0; right:0}
