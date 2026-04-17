@@ -1,15 +1,40 @@
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'shopx_secret_key_2024';
+const TOKEN_EXPIRY = '7d';
+const COOKIE_NAME = process.env.AUTH_COOKIE_NAME || 'token';
+
+// Helper function to create in-app notification
+const createPasswordNotification = async (userId, type, message) => {
+  try {
+    const notification = new Notification({
+      userId,
+      type: 'general',
+      title: type === 'reset_request' ? 'Password Reset Request' : 'Password Changed Successfully',
+      message,
+    });
+    await notification.save();
+  } catch (error) {
+    console.error('Error creating notification:', error);
+  }
+};
 
 // Register new user
 exports.register = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email and password are required' });
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
@@ -17,7 +42,7 @@ exports.register = async (req, res) => {
     // Create new user
     const user = new User({
       name,
-      email,
+      email: normalizedEmail,
       password,
       phone,
       addresses: []
@@ -25,12 +50,17 @@ exports.register = async (req, res) => {
 
     await user.save();
 
-    // Generate token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    // Generate token and set HttpOnly cookie
+    const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    };
+
+    res.cookie(COOKIE_NAME, token, cookieOptions);
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -55,8 +85,11 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
+    const normalizedEmail = String(email).toLowerCase().trim();
+
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -67,12 +100,17 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Generate token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    // Generate token and set cookie
+    const token = jwt.sign({ userId: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    };
+
+    res.cookie(COOKIE_NAME, token, cookieOptions);
 
     res.json({
       message: 'Login successful',
@@ -89,6 +127,21 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error: error.message });
+  }
+};
+
+// Logout user - clear auth cookie
+exports.logout = async (req, res) => {
+  try {
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    };
+    res.clearCookie(COOKIE_NAME, cookieOptions);
+    return res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error logging out', error: error.message });
   }
 };
 
@@ -197,5 +250,124 @@ exports.deleteAddress = async (req, res) => {
     res.json({ message: 'Address deleted successfully', addresses: user.addresses });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting address', error: error.message });
+  }
+};
+
+// Forgot password - Find user by email or phone and generate reset token
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { emailOrPhone } = req.body;
+
+    if (!emailOrPhone) {
+      return res.status(400).json({ message: 'Please provide email or phone number' });
+    }
+
+    // Find user by email or phone
+    const user = await User.findOne({
+      $or: [
+        { email: emailOrPhone.toLowerCase() },
+        { phone: emailOrPhone }
+      ]
+    });
+
+    if (!user) {
+      // Don't reveal that user doesn't exist for security
+      return res.status(200).json({ 
+        message: 'If an account exists with this email/phone, you will receive a password reset link shortly.' 
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpires = Date.now() + 3600000; // 1 hour
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetExpires;
+    await user.save();
+
+    // Simulate sending email/SMS notification
+    const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+    
+    // Log the reset link (in production, send actual email/SMS)
+    console.log('========================================');
+    console.log('PASSWORD RESET LINK (Simulated Email/SMS)');
+    console.log('========================================');
+    console.log(`To: ${user.email} ${user.phone ? `(${user.phone})` : ''}`);
+    console.log(`Subject: Password Reset Request`);
+    console.log(`Message: You requested a password reset. Click the link below to reset your password:`);
+    console.log(`Reset Link: ${resetLink}`);
+    console.log(`Token: ${resetToken}`);
+    console.log(`Expires in: 1 hour`);
+    console.log('========================================');
+
+    // Create in-app notification
+    await createPasswordNotification(
+      user._id,
+      'reset_request',
+      `A password reset request was initiated for your account. If you didn't make this request, please ignore this message.`
+    );
+
+    res.status(200).json({ 
+      message: 'If an account exists with this email/phone, you will receive a password reset link shortly.' 
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error processing request', error: error.message });
+  }
+};
+
+// Reset password - Validate token and update password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: 'Token and new password are required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
+    // Find user with valid reset token
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    // Store old email for notification
+    const userEmail = user.email;
+    const userPhone = user.phone;
+    const userId = user._id;
+
+    // Update password (will be hashed by pre-save middleware)
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    // Simulate sending confirmation email/SMS
+    console.log('========================================');
+    console.log('PASSWORD CHANGED CONFIRMATION (Simulated)');
+    console.log('========================================');
+    console.log(`To: ${userEmail} ${userPhone ? `(${userPhone})` : ''}`);
+    console.log(`Subject: Password Changed Successfully`);
+    console.log(`Message: Your password has been successfully changed.`);
+    console.log(`If you didn't make this change, please contact support immediately.`);
+    console.log('========================================');
+
+    // Create in-app notification
+    await createPasswordNotification(
+      userId,
+      'password_changed',
+      `Your password has been successfully changed. If you didn't make this change, please contact support immediately.`
+    );
+
+    res.status(200).json({ message: 'Password reset successful. You can now login with your new password.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error resetting password', error: error.message });
   }
 };

@@ -1,6 +1,8 @@
 const Order = require('../models/Order');
 const Notification = require('../models/Notification');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const emailService = require('../utils/emailService');
 
 // Create new order
 exports.createOrder = async (req, res) => {
@@ -43,6 +45,16 @@ exports.createOrder = async (req, res) => {
       total: order.total,
       items: order.items.length
     });
+
+    // Send order confirmation email (non-blocking)
+    try {
+      const user = await User.findById(req.user.userId).select('email name');
+      if (user && user.email) {
+        emailService.sendOrderConfirmation(user.email, order).catch(e => console.error('Email error', e));
+      }
+    } catch (e) {
+      console.error('Order email lookup error', e);
+    }
 
     res.status(201).json({ message: 'Order placed successfully', order });
   } catch (error) {
@@ -219,6 +231,16 @@ exports.updateOrderStatus = async (req, res) => {
       const io = req.app.get('io');
       io.to(`user-${order.userId}`).emit('new-notification', notification);
       io.to(`user-${order.userId}`).emit('order-status-update', { orderId: order.orderId, status });
+    }
+
+    // Send order status update email (non-blocking)
+    try {
+      const user = await User.findById(order.userId).select('email name');
+      if (user && user.email) {
+        emailService.sendOrderStatusUpdate(user.email, order, status).catch(e => console.error('Email error', e));
+      }
+    } catch (e) {
+      console.error('Order status email lookup error', e);
     }
 
     res.json({ message: 'Order status updated successfully', order });

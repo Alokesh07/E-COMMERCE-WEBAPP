@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const productsData = require('../../src/data/products.json');
+const emailService = require('../utils/emailService');
 
 // Get all products
 exports.getAllProducts = async (req, res) => {
@@ -63,6 +64,14 @@ exports.createProduct = async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
+
+    // Notify users about new product (fire-and-forget)
+    try {
+      emailService.sendProductAnnouncementToAll(product);
+    } catch (e) {
+      console.error('Product announcement error', e);
+    }
+
     res.status(201).json({ message: 'Product created successfully', product });
   } catch (error) {
     res.status(500).json({ message: 'Error creating product', error: error.message });

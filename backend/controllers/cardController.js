@@ -16,6 +16,11 @@ exports.addCard = async (req, res) => {
   try {
     const { cardNumber, cardHolderName, expiryMonth, expiryYear, isDefault } = req.body;
 
+    // Basic validation
+    if (!cardHolderName || !expiryMonth || !expiryYear) {
+      return res.status(400).json({ message: 'Card holder name and expiry are required' });
+    }
+
     // If this is default, unset other default cards
     if (isDefault) {
       await Card.updateMany(
@@ -24,18 +29,25 @@ exports.addCard = async (req, res) => {
       );
     }
 
+    // Only store last 4 digits to avoid persisting full card numbers
+    const cardLast4 = cardNumber ? String(cardNumber).slice(-4) : '';
+
     const card = new Card({
       userId: req.user.userId,
-      cardNumber,
+      cardNumber: undefined,
+      cardLast4,
       cardHolderName,
       expiryMonth,
       expiryYear,
-      cardType: getCardType(cardNumber),
+      cardType: cardNumber ? getCardType(cardNumber) : 'other',
       isDefault: isDefault || false
     });
 
     await card.save();
-    res.status(201).json({ message: 'Card added successfully', card });
+    // Avoid returning full cardNumber
+    const out = card.toObject();
+    delete out.cardNumber;
+    res.status(201).json({ message: 'Card added successfully', card: out });
   } catch (error) {
     res.status(500).json({ message: 'Error adding card', error: error.message });
   }
@@ -65,7 +77,9 @@ exports.updateCard = async (req, res) => {
     card.isDefault = isDefault !== undefined ? isDefault : card.isDefault;
 
     await card.save();
-    res.json({ message: 'Card updated successfully', card });
+    const out = card.toObject();
+    delete out.cardNumber;
+    res.json({ message: 'Card updated successfully', card: out });
   } catch (error) {
     res.status(500).json({ message: 'Error updating card', error: error.message });
   }

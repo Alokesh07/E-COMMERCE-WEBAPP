@@ -141,6 +141,15 @@ exports.createProduct = async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
+
+    // Announce new product to users (non-blocking)
+    try {
+      const emailService = require('../utils/emailService');
+      emailService.sendProductAnnouncementToAll(product);
+    } catch (e) {
+      console.error('Product announcement error', e);
+    }
+
     res.status(201).json({ message: 'Product created successfully', product });
   } catch (error) {
     res.status(500).json({ message: 'Error creating product', error: error.message });
