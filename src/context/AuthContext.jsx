@@ -23,6 +23,13 @@ export function AuthProvider({ children }) {
       setLoading(false);
     };
     checkAuth();
+
+    const handleLogoutEvent = () => {
+      setUser(null);
+      localStorage.removeItem('token');
+    };
+    window.addEventListener('app:logout', handleLogoutEvent);
+    return () => window.removeEventListener('app:logout', handleLogoutEvent);
   }, []);
 
   useEffect(() => {
@@ -70,6 +77,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    try {
+      authAPI.logout().catch(() => {});
+    } catch (e) {}
     setUser(null);
     localStorage.removeItem("loggedInUser");
     localStorage.removeItem("token");

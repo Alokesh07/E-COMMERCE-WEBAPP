@@ -2,6 +2,7 @@ import { useCart } from "../context/CartContext";
 import { Plus, Minus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import "../styles/cart.css";
 
 export default function Cart() {
   const { cart, updateQty, clearCart } = useCart();

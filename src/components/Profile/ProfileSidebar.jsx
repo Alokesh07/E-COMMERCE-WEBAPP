@@ -11,7 +11,7 @@ export default function ProfileSidebar({
     }`;
 
   return (
-    <div className="card shadow-sm">
+    <div className="card shadow-sm profile-sidebar">
       <div className="list-group list-group-flush">
         <button
           className={itemClass("profile")}

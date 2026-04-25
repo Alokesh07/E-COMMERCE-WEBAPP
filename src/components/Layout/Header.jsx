@@ -4,7 +4,9 @@ import { Menu, User, ShoppingCart, Shield } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { useAdmin } from "../../context/AdminContext";
+import { productsAPI, categoriesAPI, authAPI } from "../../utils/api";
 import LogoutConfirmModal from "../Profile/LogoutConfirmModal";
+import '../../styles/header.css';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -27,19 +29,13 @@ export default function Header() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch categories
-        const categoriesRes = await fetch('http://localhost:5000/api/categories');
-        const categoriesData = await categoriesRes.json();
-        if (Array.isArray(categoriesData)) {
-          setCategories(categoriesData);
-        }
-        
-        // Fetch products
-        const productsRes = await fetch('http://localhost:5000/api/products');
-        const productsData = await productsRes.json();
-        if (Array.isArray(productsData)) {
-          setProducts(productsData);
-        }
+        const categoriesData = await categoriesAPI.getAll();
+        if (Array.isArray(categoriesData)) setCategories(categoriesData);
+
+        const productsData = await productsAPI.getAll({ limit: 100 });
+        // productsAPI.getAll returns object { products, ... } earlier; handle both
+        if (Array.isArray(productsData)) setProducts(productsData);
+        else if (productsData && Array.isArray(productsData.products)) setProducts(productsData.products);
       } catch (err) {
         console.error('Error fetching data:', err);
       }
@@ -154,9 +150,26 @@ export default function Header() {
             onClick={() => navigate(user ? "/profile" : "/auth")}
           >
             <User size={20} />
-            {user && <span className="small fw-semibold">{user.name}</span>}
+            {user && <span className="small fw-semibold">{user.name || user.email}</span>}
             {admin && <span className="small fw-semibold text-primary">Admin</span>}
           </button>
+
+          {/* Logout button when user is logged in */}
+          {user && (
+            <button
+              className="btn btn-outline-danger d-flex align-items-center gap-2"
+              onClick={async () => {
+                try {
+                  await authAPI.logout();
+                } catch (e) {}
+                // dispatch global logout
+                try { window.dispatchEvent(new Event('app:logout')); } catch (e) {}
+                navigate('/auth');
+              }}
+            >
+              Logout
+            </button>
+          )}
 
           {/* CART */}
           <button
