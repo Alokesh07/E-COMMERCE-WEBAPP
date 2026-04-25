@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useFilters } from "../context/FilterContext";
 import { useCart } from "../context/CartContext";
-import { ShoppingCart, Zap, Plus, Minus, SearchX, Star, Heart, Loader } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, SearchX, Star, Heart, Loader, Eye, X } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { productsAPI } from "../utils/api";
+import "../styles/shop.css";
 
 export default function Shop() {
   const { filters } = useFilters();
@@ -11,6 +13,10 @@ export default function Shop() {
   const [loadingId, setLoadingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
+  const [wishlist, setWishlist] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('wishlist') || '[]') } catch(e){return []}
+  });
+  const [quickView, setQuickView] = useState({ open: false, product: null });
   const [searchParams] = useSearchParams();
 
   const searchQuery = searchParams.get("search")?.toLowerCase() || "";
@@ -20,11 +26,9 @@ export default function Shop() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/products');
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setProducts(data);
-        }
+        const data = await productsAPI.getAll({ limit: 100 });
+        if (Array.isArray(data)) setProducts(data);
+        else if (data && Array.isArray(data.products)) setProducts(data.products);
       } catch (err) {
         console.error('Error fetching products:', err);
       } finally {
@@ -51,6 +55,17 @@ export default function Shop() {
       setLoadingId(null);
     }, 700);
   };
+
+  const toggleWishlist = (productId) => {
+    let next = [...wishlist];
+    if (next.includes(productId)) next = next.filter((id) => id !== productId);
+    else next.push(productId);
+    setWishlist(next);
+    try { localStorage.setItem('wishlist', JSON.stringify(next)); } catch (e) {}
+  };
+
+  const openQuickView = (product) => setQuickView({ open: true, product });
+  const closeQuickView = () => setQuickView({ open: false, product: null });
 
   const filteredProducts = products
     .filter((p) => !filters.price || p.price <= filters.price)
@@ -100,7 +115,13 @@ export default function Shop() {
   }
 
   return (
-    <div className="row g-4">
+    <div className="container py-4">
+      <div className="shop-top d-flex justify-content-between align-items-center mb-3">
+        <h3 className="mb-0">Products</h3>
+        <div className="small text-muted">{filteredProducts.length} items</div>
+      </div>
+
+      <div className="row g-4">
       {filteredProducts.map((product) => {
         const qty = getQty(product._id || product.id);
 
@@ -115,11 +136,15 @@ export default function Shop() {
               )}
               
               {/* Wishlist Button */}
-              <button className="wishlist-btn" title="Add to Wishlist">
+              <button
+                className={`wishlist-btn ${wishlist.includes(product._id || product.id) ? 'active' : ''}`}
+                title="Add to Wishlist"
+                onClick={() => toggleWishlist(product._id || product.id)}
+              >
                 <Heart size={16} />
               </button>
 
-              {/* Product Image */}
+              {/* Product Image */}            
               <div className="product-image-container">
                 <img 
                   src={product.image || 'https://via.placeholder.com/200x200?text=No+Image'} 
@@ -129,6 +154,16 @@ export default function Shop() {
                     e.target.src = 'https://via.placeholder.com/200x200?text=No+Image';
                   }}
                 />
+                <div className="product-overlay">
+                  <div className="overlay-actions">
+                    <button className="overlay-btn" onClick={() => openQuickView(product)}>
+                      <Eye size={14} /> Quick View
+                    </button>
+                    <button className="overlay-btn" onClick={() => toggleWishlist(product._id || product.id)}>
+                      <Heart size={14} /> Wishlist
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Product Info */}
@@ -215,6 +250,36 @@ export default function Shop() {
           </div>
         );
       })}
+      </div>
+        {/* Quick View Modal */}
+        {quickView.open && quickView.product && (
+          <div className="modal fade show d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered modal-lg">
+              <div className="modal-content p-4">
+                <div className="d-flex justify-content-between align-items-start">
+                  <h5 className="fw-bold">{quickView.product.name}</h5>
+                  <button className="btn btn-sm btn-light" onClick={closeQuickView}><X size={16} /></button>
+                </div>
+
+                <div className="row g-3 mt-3">
+                  <div className="col-md-5">
+                    <img src={quickView.product.image || 'https://via.placeholder.com/400x400'} alt="pv" style={{ width: '100%', borderRadius: 8 }} />
+                  </div>
+                  <div className="col-md-7">
+                    <p className="text-muted">{quickView.product.brand}</p>
+                    <h4>₹{(quickView.product.price || 0).toLocaleString()}</h4>
+                    <p className="text-muted small">{quickView.product.description || quickView.product.name}</p>
+
+                    <div className="d-flex gap-2 mt-3">
+                      <button className="btn-brand" onClick={() => { handleAdd(quickView.product); closeQuickView(); }}>Add to Cart</button>
+                      <button className="btn-ghost" onClick={() => toggleWishlist(quickView.product._id || quickView.product.id)}>Wishlist</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

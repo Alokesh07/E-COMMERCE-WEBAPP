@@ -5,6 +5,7 @@ import { MapPin, CreditCard, Wallet, Banknote, Check, QrCode } from "lucide-reac
 import UPIPayment from "../components/Payment/UPIPayment";
 import CardManagement from "../components/Profile/CardManagement";
 import { ordersAPI, cardsAPI } from "../utils/api";
+import "../styles/checkout.css";
 
 export default function Checkout() {
   const { state } = useLocation();

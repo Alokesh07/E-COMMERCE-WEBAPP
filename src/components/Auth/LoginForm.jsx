@@ -1,8 +1,10 @@
+import { Link } from 'react-router-dom';
+
 export default function LoginForm({ onSubmit, onSwitchToSignup }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({
-      username: e.target.username.value,
+      email: e.target.email.value,
       password: e.target.password.value
     });
   };
@@ -11,9 +13,10 @@ export default function LoginForm({ onSubmit, onSwitchToSignup }) {
     <form onSubmit={handleSubmit}>
       <div className="mb-3">
         <input 
-          name="username" 
+          name="email" 
+          type="email"
           className="form-control" 
-          placeholder="Username" 
+          placeholder="Email" 
           required 
           style={{ padding: '12px' }}
         />
@@ -41,8 +44,8 @@ export default function LoginForm({ onSubmit, onSwitchToSignup }) {
         Login
       </button>
 
-      <p className="text-center mt-3 small text-muted">
-        Forgot Password? <a href="#" className="text-primary">Reset here</a>
+<p className="text-center mt-3 small text-muted">
+        Forgot Password? <Link to="/forgot-password" className="text-primary">Reset here</Link>
       </p>
 
       <div className="text-center mt-3">
@@ -60,7 +63,7 @@ export default function LoginForm({ onSubmit, onSwitchToSignup }) {
       <div className="mt-4 p-3 bg-light rounded text-center">
         <p className="mb-1 small text-muted">Demo Credentials:</p>
         <p className="mb-0 small">
-          <strong>Username:</strong> demo | <strong>Password:</strong> demo123
+          <strong>Email:</strong> demo@shopx.local | <strong>Password:</strong> demo123
         </p>
       </div>
     </form>
