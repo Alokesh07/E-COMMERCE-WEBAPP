@@ -1,70 +1,114 @@
-# Getting Started with Create React App
+# E-Commerce Webapp
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repository contains a full-stack e-commerce web application with a React front-end and a Node/Express backend (MongoDB models). The project is split into two main areas:
 
-## Available Scripts
+- Frontend: `src/` — React UI, pages, components, contexts, styles and utilities.
+- Backend: `backend/` — Express server, controllers, routes, models, middleware and utils.
 
-In the project directory, you can run:
+This README documents the repository layout, how to run the app locally, environment variables, a short API summary, and links to the detailed endpoint testing guide (`testing.md`).
 
-### `npm start`
+**Repository Structure**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- `backend/`:
+	- `server.js`: Entrypoint for the Express API server.
+	- `controllers/`: Request handlers for resources (e.g., `authController.js`, `productController.js`).
+	- `routes/`: Route definitions that connect endpoints to controllers (e.g., `products.js`, `auth.js`).
+	- `models/`: Mongoose models (e.g., `User.js`, `Product.js`, `Order.js`).
+	- `middleware/auth.js`: Authentication middleware that protects routes.
+	- `utils/emailService.js`: Email helper used by auth flows (password reset, notifications).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- `src/` (frontend React app):
+	- `pages/`: Top-level page components (`Shop.jsx`, `Cart.jsx`, `UserProfile.jsx`, etc.).
+	- `components/`: Reusable UI pieces organized by feature (Auth, Layout, Filters, Profile, Payment).
+	- `context/`: React contexts to store auth, cart, filter, admin, and notification state.
+	- `utils/`: Client utilities (API wrappers, price helpers, order service).
+	- `styles/`: CSS files for pages and components.
 
-### `npm test`
+- `build/`, `public/`: Production build artifacts and static assets.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Quick Start (development)**
 
-### `npm run build`
+1. Install dependencies (root and backend):
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+	- From repository root (frontend):
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+		npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+	- From `backend/`:
 
-### `npm run eject`
+		cd backend
+		npm install
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+2. Environment variables (backend): Create a `.env` in `backend/` with the required keys. Typical variables:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+	- `PORT` — server port (default 5000)
+	- `MONGO_URI` — MongoDB connection string
+	- `JWT_SECRET` — secret for signing JWT tokens
+	- `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS` — optional for email service
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. Run servers:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+	- Backend (development):
 
-## Learn More
+		cd backend
+		npm run dev
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+	- Frontend (development):
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+		npm start
 
-### Code Splitting
+The frontend expects the backend API to be available (configure `src/utils/api.js` base URL or use a proxy in `package.json`).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+**API Overview**
 
-### Analyzing the Bundle Size
+This is a short summary. For full testing scenarios and Postman-style examples, see `testing.md`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Authentication
+	- `POST /api/auth/signup` — register a user
+	- `POST /api/auth/login` — login and receive a JWT
+	- `POST /api/auth/forgot-password` — request password reset
+	- `POST /api/auth/reset-password` — reset password using token
 
-### Making a Progressive Web App
+- Products
+	- `GET /api/products` — list products (filters, pagination)
+	- `GET /api/products/:id` — get product details
+	- `POST /api/products` — create product (admin)
+	- `PUT /api/products/:id` — update product (admin)
+	- `DELETE /api/products/:id` — delete product (admin)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Categories
+	- `GET /api/categories` — list categories
+	- `POST /api/categories` — create category (admin)
 
-### Advanced Configuration
+- Orders
+	- `POST /api/orders` — create order (authenticated)
+	- `GET /api/orders` — list orders (admin or user-specific)
+	- `GET /api/orders/:id` — order details
+	- `PUT /api/orders/:id/status` — update status (admin)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- Cards / Payments
+	- `POST /api/cards` — create card or payment intent
+	- `GET /api/cards` — list saved cards for user
 
-### Deployment
+- Notifications
+	- `GET /api/notifications` — user notifications
+	- `POST /api/notifications/mark-read` — mark as read
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Authorization: Protected endpoints require an `Authorization` header: `Bearer <JWT>`. Admin-restricted endpoints check the authenticated user's role.
 
-### `npm run build` fails to minify
+**Testing and Postman**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+See `testing.md` for step-by-step endpoint test cases, required headers, expected responses, sample payloads, and how to set Postman environment variables such as `base_url` and `auth_token`.
+
+**Code notes & conventions**
+
+- Controllers return consistent JSON structures. Look at `backend/controllers/*` for shape and error handling.
+- Models use Mongoose; check `backend/models` for schema fields and relations.
+- Frontend `src/context` contains authorization and cart flows; tokens are stored in context/localStorage.
+
+**Next steps / Useful commands**
+
+- Lint / format: use project-specific scripts (if configured)
+- Run backend lint/test: `cd backend && npm test` (if available)
+
+If you'd like, I can also generate a Postman collection and environment files for quick import. See `testing.md` for details on how I organized test cases.
