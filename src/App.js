@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 
 import LoginRegister from "./components/Auth/LoginRegister";
+import ForgotPasswordForm from "./components/Auth/ForgotPasswordForm";
+import ResetPasswordForm from "./components/Auth/ResetPasswordForm";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import MainLayout from "./components/Layout/MainLayout";
 
@@ -18,8 +20,10 @@ import CategoryManagement from "./pages/CategoryManagement";
 function App() {
   return (
     <Routes>
-      {/* ================= AUTH ================= */}
+{/* ================= AUTH ================= */}
       <Route path="/auth" element={<LoginRegister />} />
+      <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+      <Route path="/reset-password" element={<ResetPasswordForm />} />
 
       {/* ================= ADMIN ROUTES ================= */}
       <Route path="/admin-login" element={<AdminLogin />} />

@@ -4,6 +4,11 @@ const mongoose = require('mongoose');
 const http = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
+require('express-async-errors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,7 +22,12 @@ const io = new Server(server, {
 });
 
 // Middleware
-app.use(cors());
+app.use(helmet());
+app.use(morgan('dev'));
+
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+app.use(cors({ origin: CLIENT_URL, credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -60,9 +70,20 @@ io.on('connection', (socket) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!', error: err.message });
+  if (process.env.NODE_ENV === 'development') {
+    console.error(err.stack);
+  }
+  res.status(err.status || 500).json({ message: err.message || 'Something went wrong!' });
 });
+
+// Serve frontend build in production
+if (process.env.NODE_ENV === 'production') {
+  const buildPath = path.join(__dirname, '..', 'build');
+  app.use(express.static(buildPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
