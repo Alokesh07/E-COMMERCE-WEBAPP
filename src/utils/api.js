@@ -3,21 +3,48 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api
 // Helper function for API calls
 const apiCall = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
-  
+
+  const headers = { ...(options.headers || null) };
+
+  // If body is not FormData, assume JSON
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const config = {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    },
+    headers,
+    // allow cookies (HttpOnly auth cookie) to be sent/received
+    credentials: options.credentials || 'include',
   };
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-  const data = await response.json();
+
+  // Handle empty responses and non-JSON gracefully
+  const text = await response.text();
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch (e) {
+    console.log(e);
+    data = text;
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    if (response.status === 401) {
+      // Token invalid or expired — clear and let app handle redirect/login
+      localStorage.removeItem('token');
+      // Optionally, dispatch a global logout event here
+      try { window.dispatchEvent(new Event('app:logout')); } catch (e) {
+        console.log(e);
+      }
+    }
+    const msg = (data && data.message) || data || response.statusText || 'Something went wrong';
+    const err = new Error(msg);
+    err.status = response.status;
+    throw err;
   }
 
   return data;
@@ -32,6 +59,11 @@ export const authAPI = {
   login: (credentials) => apiCall('/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials),
+  }),
+  logout: () => apiCall('/auth/logout', { method: 'POST' }).then((res) => {
+    try { localStorage.removeItem('token'); } catch (e) {}
+    try { window.dispatchEvent(new Event('app:logout')); } catch (e) {}
+    return res;
   }),
   getCurrentUser: () => apiCall('/auth/me'),
   updateProfile: (updates) => apiCall('/auth/profile', {
@@ -48,6 +80,14 @@ export const authAPI = {
   }),
   deleteAddress: (addressId) => apiCall(`/auth/addresses/${addressId}`, {
     method: 'DELETE',
+  }),
+  forgotPassword: (emailOrPhone) => apiCall('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ emailOrPhone }),
+  }),
+  resetPassword: (token, newPassword) => apiCall('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, newPassword }),
   }),
 };
 
