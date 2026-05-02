@@ -44,6 +44,7 @@ export default function UPIPayment({ amount, onSuccess, onCancel }) {
         upiId: upiId,
         amount: amount
       });
+      try { (async () => { (await import('../../utils/logger')).sendLog('info', `UPI payment simulated success tx=${txId} amount=${amount}`); })(); } catch(e){}
     }, 2000);
   };
 
@@ -51,6 +52,7 @@ export default function UPIPayment({ amount, onSuccess, onCancel }) {
     generateQRCode();
     setPaymentStatus("pending");
     setTransactionId("");
+    try { (async () => { (await import('../../utils/logger')).sendLog('info', `UPI refresh QR amount=${amount}`); })(); } catch(e){}
   };
 
   return (

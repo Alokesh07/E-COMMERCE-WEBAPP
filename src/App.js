@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import LoginRegister from "./components/Auth/LoginRegister";
 import ForgotPasswordForm from "./components/Auth/ForgotPasswordForm";
@@ -22,6 +22,8 @@ function App() {
     <Routes>
 {/* ================= AUTH ================= */}
       <Route path="/auth" element={<LoginRegister />} />
+      {/* Backwards-compatible login route - redirect to /auth */}
+      <Route path="/login" element={<Navigate to="/auth" replace />} />
       <Route path="/forgot-password" element={<ForgotPasswordForm />} />
       <Route path="/reset-password" element={<ResetPasswordForm />} />
 

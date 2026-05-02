@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-export default function LoginForm({ onSubmit, onSwitchToSignup }) {
+export default function LoginForm({ onSubmit, onSwitchToSignup, onShowForgot }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({
@@ -44,8 +44,8 @@ export default function LoginForm({ onSubmit, onSwitchToSignup }) {
         Login
       </button>
 
-<p className="text-center mt-3 small text-muted">
-        Forgot Password? <Link to="/forgot-password" className="text-primary">Reset here</Link>
+      <p className="text-center mt-3 small text-muted">
+        Forgot Password? <span className="text-primary" style={{cursor:'pointer'}} onClick={onShowForgot}>Reset here</span>
       </p>
 
       <div className="text-center mt-3">

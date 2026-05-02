@@ -77,9 +77,11 @@ export default function Checkout() {
       };
 
       const result = await ordersAPI.create(orderData);
+      try { (await import('../utils/logger')).sendLog('info', `Order created via API by user=${user?.email || user?.id} orderId=${result.order?.orderId || ''}`); } catch(e){}
       navigate("/order-success", { state: { orderId: result.order.orderId } });
     } catch (error) {
       console.error("Error creating order:", error);
+      try { (await import('../utils/logger')).sendLog('error', `Order creation failed for user=${user?.email || user?.id} - ${error.message || error}`); } catch(e){}
       const newOrder = {
         id: orderId,
         userId: user?.id,
@@ -123,9 +125,11 @@ export default function Checkout() {
       };
 
       const result = await ordersAPI.create(orderData);
+      try { (await import('../utils/logger')).sendLog('info', `Order created via UPI by user=${user?.email || user?.id} orderId=${result.order?.orderId || ''}`); } catch(e){}
       navigate("/order-success", { state: { orderId: result.order.orderId } });
     } catch (error) {
       console.error("Error creating order:", error);
+      try { (await import('../utils/logger')).sendLog('error', `UPI order creation failed for user=${user?.email || user?.id} - ${error.message || error}`); } catch(e){}
       navigate("/order-success", { state: { orderId } });
     }
     setLoading(false);

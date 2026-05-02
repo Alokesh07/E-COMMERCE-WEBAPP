@@ -38,6 +38,7 @@ export default function CardManagement() {
 
     try {
       await cardsAPI.add(cardData);
+      try { (await import('../../utils/logger')).sendLog('info', `Card added last4=${cardData.cardNumber.slice(-4)}`); } catch(e){}
       fetchCards();
       setShowAddModal(false);
     } catch (err) {
@@ -49,6 +50,7 @@ export default function CardManagement() {
     if (!window.confirm("Are you sure you want to delete this card?")) return;
     try {
       await cardsAPI.delete(id);
+      try { (await import('../../utils/logger')).sendLog('info', `Card deleted id=${id}`); } catch(e){}
       fetchCards();
     } catch (err) {
       console.error("Error deleting card:", err);
@@ -58,6 +60,7 @@ export default function CardManagement() {
   const handleSetDefault = async (id) => {
     try {
       await cardsAPI.setDefault(id);
+      try { (await import('../../utils/logger')).sendLog('info', `Card set default id=${id}`); } catch(e){}
       fetchCards();
     } catch (err) {
       console.error("Error setting default card:", err);

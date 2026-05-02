@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { authAPI } from '../../utils/api';
+import { sendLog } from '../../utils/logger';
 
 export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset }) {
   const [emailOrPhone, setEmailOrPhone] = useState('');
@@ -16,8 +17,11 @@ export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset })
     try {
       const response = await authAPI.forgotPassword(emailOrPhone);
       setMessage(response.message);
+      sendLog('info', `Password reset requested for ${emailOrPhone}`);
     } catch (err) {
-      setError(err.message || 'Failed to process request');
+      const msg = err.message || 'Failed to process request';
+      setError(msg);
+      sendLog('error', `Forgot password failed for ${emailOrPhone} - ${msg}`);
     } finally {
       setLoading(false);
     }

@@ -48,6 +48,8 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/cards', require('./routes/cards'));
 app.use('/api/admin', require('./routes/admin'));
+// Logging endpoint for client logs
+app.use('/api/logs', require('./routes/logs'));
 
 // Socket.io connection handling
 io.on('connection', (socket) => {

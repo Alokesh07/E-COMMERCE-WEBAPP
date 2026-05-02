@@ -48,10 +48,12 @@ export function AuthProvider({ children }) {
       if (response.token) {
         localStorage.setItem("token", response.token);
         setUser(response.user || response);
+        try { (await import('../utils/logger')).sendLog('info', `User login: ${credentials.email}`); } catch(e){}
         return { success: true };
       }
       return { success: false, message: "Login failed" };
     } catch (error) {
+      try { (await import('../utils/logger')).sendLog('error', `Login failed: ${credentials.email} - ${error.message}`); } catch(e){}
       return { success: false, message: error.message || "Invalid credentials" };
     } finally {
       setLoading(false);
@@ -66,10 +68,12 @@ export function AuthProvider({ children }) {
       if (response.token) {
         localStorage.setItem("token", response.token);
         setUser(response.user || response);
+        try { (await import('../utils/logger')).sendLog('info', `User registered: ${userData.email}`); } catch(e){}
         return { success: true };
       }
       return { success: false, message: "Registration failed" };
     } catch (error) {
+      try { (await import('../utils/logger')).sendLog('error', `Registration failed: ${userData.email} - ${error.message}`); } catch(e){}
       return { success: false, message: error.message || "Registration failed" };
     } finally {
       setLoading(false);

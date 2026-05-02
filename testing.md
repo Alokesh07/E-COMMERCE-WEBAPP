@@ -117,3 +117,41 @@ If you want, I can generate a ready-to-import Postman collection (JSON) that con
 
 ---
 Created by the maintainer assistant to centralize endpoint testing instructions.
+
+---
+Local smoke test run (2026-04-29)
+
+- What I ran: a small smoke sequence executed from the repository host that performed:
+  1. `GET /api/products`
+  2. `POST /api/auth/signup` (unique timestamped email)
+  3. `POST /api/auth/login`
+  4. `POST /api/orders` (only if a product ID exists and login returned a token)
+
+- Result: all requests failed to connect — the script reported `Unable to connect to the remote server` for the API host `http://localhost:5000`.
+
+- Likely cause: the backend server is not running or is listening on a different port.
+
+How you can reproduce locally
+
+1. Start the backend from the project root:
+
+```powershell
+cd backend
+npm install
+# create a .env with MONGO_URI, JWT_SECRET and optional email settings
+npm run dev
+```
+
+2. Confirm the server is listening on the expected port (defaults to 5000). Example health check:
+
+```powershell
+Invoke-RestMethod -Uri 'http://localhost:5000/api/products' -Method GET
+```
+
+3. Re-run the Postman collection import (see `postman_collection.json`) and use `postman_environment.json` with `base_url` set to `http://localhost:5000`.
+
+Notes & next steps I can take for you
+
+- Re-run the smoke tests once you start the backend and share logs or allow me access to run them again.
+- Generate a zipped Postman collection + environment for easy import.
+- Add more automated tests (Newman-compatible) if you'd like CI integration.

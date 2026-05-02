@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
+import ForgotPasswordForm from "./ForgotPasswordForm";
 import AuthMessageModal from "./AuthMessageModal";
 // import foodImage from "../../assets/hello.jpg";
 import "./LoginRegister.css";
@@ -10,6 +11,7 @@ import { useAuth } from "../../context/AuthContext";
 const LoginRegister = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [message, setMessage] = useState("");
+  const [showForgot, setShowForgot] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -114,6 +116,7 @@ const LoginRegister = () => {
                 <LoginForm
                   onSubmit={handleLogin}
                   onSwitchToSignup={() => setActiveTab("signup")}
+                  onShowForgot={() => setShowForgot(true)}
                 />
               ) : (
                 <SignupForm
@@ -127,6 +130,15 @@ const LoginRegister = () => {
       </div>
 
       <AuthMessageModal message={message} onClose={() => setMessage("")} />
+
+      {showForgot && (
+        <div className="modal-overlay">
+          <div className="modal-card small-card">
+            <button className="btn-close" onClick={() => setShowForgot(false)}>×</button>
+            <ForgotPasswordForm onSwitchToLogin={() => { setShowForgot(false); setActiveTab('login'); }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

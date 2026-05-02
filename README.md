@@ -112,3 +112,8 @@ See `testing.md` for step-by-step endpoint test cases, required headers, expecte
 - Run backend lint/test: `cd backend && npm test` (if available)
 
 If you'd like, I can also generate a Postman collection and environment files for quick import. See `testing.md` for details on how I organized test cases.
+
+**Logging**
+
+- Frontend important events (for example: password reset success/failure) are sent to the backend logging endpoint `POST /api/logs` and persisted to a timestamped file at `backend/logs/app.log`.
+- The server still prints runtime logs (morgan) to stdout; persistent application logs are stored in `backend/logs/app.log`.

@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
+// initialize console bridge early so console.* calls are captured
+import './utils/consoleBridge';
+
 import App from "./App";
 import "./index.css";
 import "./styles/theme.css";

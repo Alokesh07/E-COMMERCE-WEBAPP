@@ -21,20 +21,25 @@ export function CartProvider({ children }) {
       }
       return [...prev, { ...product, qty: 1 }];
     });
+    try { (async () => { (await import('../utils/logger')).sendLog('info', `addToCart: ${product.id} - ${product.name}`); })(); } catch(e){}
   };
 
   const updateQty = (id, qty) => {
     if (qty <= 0) {
       setCart((prev) => prev.filter((p) => p.id !== id));
+      try { (async () => { (await import('../utils/logger')).sendLog('info', `removeFromCart: ${id}`); })(); } catch(e){}
     } else {
       setCart((prev) => prev.map((p) => (p.id === id ? { ...p, qty } : p)));
+      try { (async () => { (await import('../utils/logger')).sendLog('info', `updateQty: ${id} -> ${qty}`); })(); } catch(e){}
     }
   };
 
   const clearCart = () => setCart([]);
+  // log clearing
+  const clearCartLogged = () => { clearCart(); try { (async () => { (await import('../utils/logger')).sendLog('info', `clearCart`); })(); } catch(e){} };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQty, clearCart }}>
+    <CartContext.Provider value={{ cart, addToCart, updateQty, clearCart: clearCartLogged }}>
       {children}
     </CartContext.Provider>
   );
