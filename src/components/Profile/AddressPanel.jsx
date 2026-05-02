@@ -1,17 +1,13 @@
 import { useState, useEffect } from "react";
 import { Plus, MapPin, Trash2, Pencil, Star } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { authAPI } from "../../utils/api";
 import "../../styles/profile.css";
 
 export default function AddressPanel() {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
 
-  // Initialize state with default values first (hooks must be at top)
-  const [addresses, setAddresses] = useState(() => {
-    const stored = localStorage.getItem("addresses");
-    return stored ? JSON.parse(stored) : [];
-  });
-
+  const [addresses, setAddresses] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
 
@@ -20,15 +16,19 @@ export default function AddressPanel() {
     city: "",
     zip: "",
     landmark: "",
+    type: 'Home',
+    isDefault: false,
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Use effect to sync to local storage
   useEffect(() => {
-    localStorage.setItem("addresses", JSON.stringify(addresses));
-    if (user) {
-      updateUser({ addresses });
+    // Initialize from user data when available
+    if (user && Array.isArray(user.addresses)) {
+      setAddresses(user.addresses);
     }
-  }, [addresses, user, updateUser]);
+  }, [user]);
 
   // Don't render if no user - use conditional rendering instead of early return
   if (!user) {
@@ -40,62 +40,97 @@ export default function AddressPanel() {
   }
 
   /* -------------------- ADD / UPDATE ADDRESS -------------------- */
-  const saveAddress = () => {
-    if (!form.address || !form.city || !form.zip) return;
-
-    if (editId) {
-      setAddresses(
-        addresses.map((a) => (a.id === editId ? { ...a, ...form } : a))
-      );
-    } else {
-      setAddresses([
-        ...addresses,
-        {
-          id: Date.now(),
-          ...form,
-          isDefault: addresses.length === 0,
-        },
-      ]);
+  const saveAddress = async () => {
+    setError("");
+    if (!form.address || !form.city || !form.zip) {
+      setError('Please fill address, city and zip');
+      return;
     }
 
-    resetForm();
+    setLoading(true);
+    try {
+      if (editId) {
+        await authAPI.updateAddress(editId, {
+          name: form.name || '',
+          address: form.address,
+          city: form.city,
+          state: form.state || '',
+          zip: form.zip,
+          phone: form.phone || '',
+          isDefault: form.isDefault,
+          type: form.type
+        });
+      } else {
+        await authAPI.addAddress({
+          name: form.name || '',
+          address: form.address,
+          city: form.city,
+          state: form.state || '',
+          zip: form.zip,
+          phone: form.phone || '',
+          isDefault: form.isDefault,
+          type: form.type
+        });
+      }
+
+      // Refresh current user
+      const refreshed = await authAPI.getCurrentUser();
+      setAddresses(refreshed.addresses || []);
+      resetForm();
+    } catch (err) {
+      setError(err.message || 'Failed to save address');
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* -------------------- REMOVE ADDRESS -------------------- */
-  const removeAddress = (id) => {
-    const filtered = addresses.filter((a) => a.id !== id);
-
-    if (!filtered.some((a) => a.isDefault) && filtered.length > 0) {
-      filtered[0].isDefault = true;
+  const removeAddress = async (id) => {
+    setLoading(true);
+    try {
+      await authAPI.deleteAddress(id);
+      const refreshed = await authAPI.getCurrentUser();
+      setAddresses(refreshed.addresses || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    setAddresses(filtered);
   };
 
   /* -------------------- SET DEFAULT -------------------- */
-  const setDefault = (id) => {
-    setAddresses(
-      addresses.map((a) => ({
-        ...a,
-        isDefault: a.id === id,
-      }))
-    );
+  const setDefault = async (id) => {
+    setLoading(true);
+    try {
+      await authAPI.updateAddress(id, { isDefault: true });
+      const refreshed = await authAPI.getCurrentUser();
+      setAddresses(refreshed.addresses || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* -------------------- EDIT -------------------- */
   const editAddress = (addr) => {
     setForm({
+      name: addr.name || '',
       address: addr.address,
       city: addr.city,
+      state: addr.state || '',
       zip: addr.zip,
-      landmark: addr.landmark,
+      phone: addr.phone || '',
+      landmark: addr.landmark || '',
+      type: addr.type || 'Home',
+      isDefault: !!addr.isDefault,
     });
     setEditId(addr.id);
     setShowForm(true);
   };
 
   const resetForm = () => {
-    setForm({ address: "", city: "", zip: "", landmark: "" });
+    setForm({ address: "", city: "", zip: "", landmark: "", type: 'Home', isDefault: false });
     setEditId(null);
     setShowForm(false);
   };
@@ -219,15 +254,31 @@ export default function AddressPanel() {
                     }
                   />
                 </div>
+
+                <div className="col-md-6">
+                  <select className="form-select" value={form.type} onChange={(e)=>setForm({...form, type: e.target.value})}>
+                    <option value="Home">Home</option>
+                    <option value="Work">Work</option>
+                    <option value="PG">PG</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="col-md-6 d-flex align-items-center gap-2">
+                  <input type="checkbox" checked={form.isDefault} onChange={(e)=>setForm({...form, isDefault: e.target.checked})} id="isDefaultAddr" />
+                  <label htmlFor="isDefaultAddr" className="m-0">Set as default</label>
+                </div>
               </div>
 
+              {error && <div className="alert alert-danger mt-3">{error}</div>}
+
               <div className="d-flex gap-2 mt-4">
-                <button className="btn btn-secondary w-50" onClick={resetForm}>
+                <button className="btn btn-secondary w-50" onClick={resetForm} disabled={loading}>
                   Cancel
                 </button>
 
-                <button className="btn btn-primary w-50" onClick={saveAddress}>
-                  Save Address
+                <button className="btn btn-primary w-50" onClick={saveAddress} disabled={loading}>
+                  {loading ? 'Saving...' : 'Save Address'}
                 </button>
               </div>
             </div>

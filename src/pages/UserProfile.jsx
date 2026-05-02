@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from 'react-router-dom';
 import ProfileSidebar from "../components/Profile/ProfileSidebar";
 import ProfileInfoPanel from "../components/Profile/ProfileInfoPanel";
 import AddressPanel from "../components/Profile/AddressPanel";
@@ -8,6 +9,13 @@ import LogoutConfirmModal from "../components/Profile/LogoutConfirmModal";
 export default function UserProfile() {
   const [activeTab, setActiveTab] = useState("profile");
   const [showLogout, setShowLogout] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab) setActiveTab(tab);
+  }, [location.search]);
 
   return (
     <div className="container-fluid mt-4">

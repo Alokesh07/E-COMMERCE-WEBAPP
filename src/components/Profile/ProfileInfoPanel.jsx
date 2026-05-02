@@ -103,7 +103,7 @@ export default function ProfileInfoPanel() {
               <span className="d-flex align-items-center gap-1">
                 <Calendar size={14} /> DOB
               </span>
-              <strong>{user.dob}</strong>
+              <strong>{user.dob ? new Date(user.dob).toLocaleDateString() : 'Not provided'}</strong>
             </div>
 
             <div className="info-item">

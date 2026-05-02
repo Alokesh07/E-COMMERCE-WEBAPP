@@ -6,11 +6,21 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  username: {
+    type: String,
+    required: false,
+    unique: true,
+    sparse: true
+  },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true
+  },
+  dob: {
+    type: Date,
+    required: false
   },
   password: {
     type: String,
@@ -28,7 +38,8 @@ const userSchema = new mongoose.Schema({
     state: String,
     zip: String,
     phone: String,
-    isDefault: Boolean
+    type: { type: String, enum: ['Home','Work','PG','Other'], default: 'Home' },
+    isDefault: { type: Boolean, default: false }
   }],
   avatar: {
     type: String,

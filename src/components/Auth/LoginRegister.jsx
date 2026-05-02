@@ -7,6 +7,7 @@ import AuthMessageModal from "./AuthMessageModal";
 // import foodImage from "../../assets/hello.jpg";
 import "./LoginRegister.css";
 import { useAuth } from "../../context/AuthContext";
+import { Link } from 'react-router-dom';
 
 const LoginRegister = () => {
   const [activeTab, setActiveTab] = useState("login");
@@ -124,6 +125,14 @@ const LoginRegister = () => {
                   onSwitchToLogin={() => setActiveTab("login")}
                 />
               )}
+            </div>
+            <div className="px-3 mt-2 text-center">
+              <small className="text-muted">Looking for admin access?</small>
+              <div>
+                <Link to="/admin-login" className="btn btn-link small">
+                  Admin Login
+                </Link>
+              </div>
             </div>
           </div>
         </div>

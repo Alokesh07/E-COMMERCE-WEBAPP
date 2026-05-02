@@ -25,7 +25,7 @@ const createPasswordNotification = async (userId, type, message) => {
 // Register new user
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, username, dob } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email and password are required' });
@@ -42,9 +42,11 @@ exports.register = async (req, res) => {
     // Create new user
     const user = new User({
       name,
+      username,
       email: normalizedEmail,
       password,
       phone,
+      dob: dob ? new Date(dob) : undefined,
       addresses: []
     });
 
@@ -67,9 +69,11 @@ exports.register = async (req, res) => {
       token,
       user: {
         id: user._id,
+        username: user.username,
         name: user.name,
         email: user.email,
         phone: user.phone,
+        dob: user.dob,
         addresses: user.addresses,
         avatar: user.avatar,
         role: user.role
@@ -177,7 +181,7 @@ exports.updateProfile = async (req, res) => {
 // Add address
 exports.addAddress = async (req, res) => {
   try {
-    const { name, address, city, state, zip, phone, isDefault } = req.body;
+    const { name, address, city, state, zip, phone, isDefault, type } = req.body;
     const user = await User.findById(req.user.userId);
 
     if (isDefault) {
@@ -192,6 +196,7 @@ exports.addAddress = async (req, res) => {
       state,
       zip,
       phone,
+      type: type || 'Home',
       isDefault: isDefault || user.addresses.length === 0
     };
 
@@ -208,7 +213,7 @@ exports.addAddress = async (req, res) => {
 exports.updateAddress = async (req, res) => {
   try {
     const { addressId } = req.params;
-    const { name, address, city, state, zip, phone, isDefault } = req.body;
+    const { name, address, city, state, zip, phone, isDefault, type } = req.body;
     const user = await User.findById(req.user.userId);
 
     const addrIndex = user.addresses.findIndex(a => a.id === addressId);
@@ -228,6 +233,7 @@ exports.updateAddress = async (req, res) => {
       state,
       zip,
       phone,
+      type: type || user.addresses[addrIndex].type || 'Home',
       isDefault: isDefault || false
     };
 

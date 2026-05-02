@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, User, ShoppingCart, Shield } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
-import { useAdmin } from "../../context/AdminContext";
 import { productsAPI, categoriesAPI, authAPI } from "../../utils/api";
 import LogoutConfirmModal from "../Profile/LogoutConfirmModal";
 import '../../styles/header.css';
@@ -21,7 +20,6 @@ export default function Header() {
   
   const { cart, addToCart, updateQty } = useCart();
   const { user } = useAuth();
-  const { admin } = useAdmin();
   
   const cartCount = cart.reduce((total, item) => total + item.qty, 0);
 
@@ -136,13 +134,7 @@ export default function Header() {
 
         {/* RIGHT ICONS */}
         <div className="d-flex align-items-center gap-3">
-          {/* ADMIN LOGIN BUTTON - Show when not logged in as admin */}
-          {!admin && (
-            <Link to="/admin-login" className="btn btn-outline-primary d-flex align-items-center gap-2">
-              <Shield size={18} />
-              <span className="d-none d-md-inline">Admin</span>
-            </Link>
-          )}
+          {/* Admin login removed from header — accessible via /auth page only */}
 
           {/* USER PROFILE */}
           <button
@@ -151,7 +143,7 @@ export default function Header() {
           >
             <User size={20} />
             {user && <span className="small fw-semibold">{user.name || user.email}</span>}
-            {admin && <span className="small fw-semibold text-primary">Admin</span>}
+            
           </button>
 
           {/* Logout button when user is logged in */}

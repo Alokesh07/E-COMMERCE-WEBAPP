@@ -40,6 +40,36 @@ mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.log('MongoDB Connection Error:', err));
 
+// Ensure default admin user exists
+const User = require('./models/User');
+const bcrypt = require('bcryptjs');
+(async function ensureAdmin() {
+  try {
+    const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@shopx.com';
+    const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123';
+
+    const existing = await User.findOne({ email: adminEmail.toLowerCase() });
+    if (!existing) {
+      const hashed = await bcrypt.hash(adminPassword, 10);
+      const adminUser = new User({
+        name: 'Administrator',
+        username: 'admin',
+        email: adminEmail.toLowerCase(),
+        password: hashed,
+        role: 'admin'
+      });
+      await adminUser.save();
+      console.log('Default admin user created:', adminEmail);
+    } else if (existing.role !== 'admin') {
+      existing.role = 'admin';
+      await existing.save();
+      console.log('Existing user promoted to admin:', adminEmail);
+    }
+  } catch (err) {
+    console.error('Error ensuring admin user:', err.message);
+  }
+})();
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));

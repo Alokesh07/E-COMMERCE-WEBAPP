@@ -61,7 +61,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/orders" className="footer-link">
+                <Link to="/profile?tab=orders" className="footer-link">
                   Orders
                 </Link>
               </li>

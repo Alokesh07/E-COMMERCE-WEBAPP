@@ -21,7 +21,7 @@ export default function OrderHistoryPanel() {
           src="https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-5521508-4610092.png" 
           alt="No orders" 
           width="200" 
-          className="mb-3"
+          className="mb-3 mx-auto d-block"
           onError={(e) => {
             e.target.src = 'https://rukminim1.flixcart.com/www/800/800/promos/16/05/2019/d0a2452c-275a-4f2c-8d2e-1d6c7d9a2d7b.png';
           }}

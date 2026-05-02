@@ -47,44 +47,13 @@ function App() {
 
         {/* USER PROFILE */}
         <Route path="profile" element={<UserProfile />} />
+
+        {/* Cart and checkout inside MainLayout so header/footer remain visible */}
+        <Route path="cart" element={<Cart />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="order-success" element={<OrderSuccess />} />
+        <Route path="order-tracking/:orderId" element={<OrderTracking />} />
       </Route>
-
-      {/* ================= STANDALONE PROTECTED PAGES (NO HEADER / SIDEBAR) ================= */}
-      <Route
-        path="/cart"
-        element={
-          <ProtectedRoute>
-            <Cart />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/checkout"
-        element={
-          <ProtectedRoute>
-            <Checkout />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/order-success"
-        element={
-          <ProtectedRoute>
-            <OrderSuccess />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/order-tracking/:orderId"
-        element={
-          <ProtectedRoute>
-            <OrderTracking />
-          </ProtectedRoute>
-        }
-      />
     </Routes>
   );
 }

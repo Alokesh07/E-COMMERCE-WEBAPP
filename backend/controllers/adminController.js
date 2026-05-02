@@ -11,27 +11,33 @@ const JWT_SECRET = process.env.JWT_SECRET || 'shopx_secret_key_2024';
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    // Try to find an admin user in the DB by username or email
+    const query = { role: 'admin', $or: [{ username: username }, { email: String(username).toLowerCase() }] };
+    const user = await User.findOne(query).select('+password');
 
-    // Check for hardcoded admin credentials
-    if (username === 'admin' && password === 'admin123') {
-      const token = jwt.sign(
-        { userId: 'admin', email: 'admin@shopx.com', role: 'admin', username },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-
-      return res.json({
-        message: 'Login successful',
-        token,
-        admin: {
-          username: 'admin',
-          email: 'admin@shopx.com',
-          role: 'admin'
-        }
-      });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    return res.status(401).json({ message: 'Invalid credentials' });
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role, username: user.username || user.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Login successful',
+      token,
+      admin: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error: error.message });
   }
@@ -196,7 +202,6 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    const oldStatus = order.status;
     order.status = status;
 
     // Set timestamps based on status
