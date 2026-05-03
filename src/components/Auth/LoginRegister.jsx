@@ -144,7 +144,7 @@ const LoginRegister = () => {
         <div className="modal-overlay">
           <div className="modal-card small-card">
             <button className="btn-close" onClick={() => setShowForgot(false)}>×</button>
-            <ForgotPasswordForm onSwitchToLogin={() => { setShowForgot(false); setActiveTab('login'); }} />
+            <ForgotPasswordForm onSwitchToLogin={() => { setShowForgot(false); setActiveTab('login'); }} onClose={() => setShowForgot(false)} />
           </div>
         </div>
       )}

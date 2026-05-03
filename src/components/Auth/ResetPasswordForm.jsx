@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { authAPI } from '../../utils/api';
 import { sendLog } from '../../utils/logger';
+import {globalThis} from 'globalthis';
 
 // ResetPasswordForm is used both as a standalone route and inside a modal.
 // It prefers a `token` prop if provided; otherwise it reads the `token` query param.
@@ -46,15 +48,22 @@ export default function ResetPasswordForm({ token: propToken, onClose }) {
       setMessage(response.message);
       // send a device notification
       try {
-        if (window.Notification && Notification.permission === 'granted') {
-          new Notification('Password reset', { body: response.message });
-        } else if (window.Notification && Notification.permission !== 'denied') {
-          Notification.requestPermission().then((perm) => {
-            if (perm === 'granted') new Notification('Password reset', { body: response.message });
-          });
+        let Notif;
+          if (typeof globalThis !== 'undefined' && globalThis.window?.Notification) {
+            Notif = globalThis.window.Notification;
+          } else if (typeof globalThis !== 'undefined' && globalThis.Notification) {
+            Notif = globalThis.Notification;
+        }
+
+        if (Notif?.permission === 'granted') {
+          new Notif('Password reset', { body: response.message });
+        } else if (Notif?.permission !== 'denied' && typeof Notif?.requestPermission === 'function') {
+          Notif.requestPermission().then((perm) => {
+            if (perm === 'granted') new Notif('Password reset', { body: response.message });
+          }).catch((e) => console.warn('Notification permission error', e));
         }
       } catch (notifErr) {
-        // ignore notification errors
+        console.warn('Notification error', notifErr);
       }
 
       // log event to backend log file
@@ -86,7 +95,17 @@ export default function ResetPasswordForm({ token: propToken, onClose }) {
 
   return (
     <div className="reset-password-modal-overlay">
-      <div className="reset-password-container modal-card">
+      <div className="reset-password-container modal-card" style={{ position: 'relative' }}>
+        {onClose && (
+          <button
+            className="btn-close modal-close-btn"
+            onClick={onClose}
+            aria-label="Close"
+            style={{ position: 'absolute', right: 12, top: 12, fontSize: 20 }}
+          >
+            ×
+          </button>
+        )}
       <div className="text-center mb-4">
         <h4 className="fw-bold" style={{ color: '#6366f1' }}>Set New Password</h4>
         <p className="text-muted small">Enter your new password below</p>
@@ -154,3 +173,8 @@ export default function ResetPasswordForm({ token: propToken, onClose }) {
     </div>
   );
 }
+
+ResetPasswordForm.propTypes = {
+  token: PropTypes.string,
+  onClose: PropTypes.func,
+};

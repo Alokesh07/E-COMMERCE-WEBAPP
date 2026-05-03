@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { authAPI } from '../../utils/api';
 import { sendLog } from '../../utils/logger';
 
-export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset }) {
+export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset, onClose }) {
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -29,6 +30,16 @@ export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset })
 
   return (
     <div className="forgot-password-container">
+      {onClose && (
+        <button
+          className="btn-close modal-close-btn"
+          onClick={onClose}
+          aria-label="Close"
+          style={{ position: 'absolute', right: 12, top: 12, fontSize: 20 }}
+        >
+          ×
+        </button>
+      )}
       <div className="text-center mb-4">
         <h4 className="fw-bold" style={{ color: '#6366f1' }}>Reset Your Password</h4>
         <p className="text-muted small">Enter your email or phone number to receive a password reset link</p>
@@ -76,14 +87,16 @@ export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset })
 
       <div className="text-center mt-3">
         <span className="text-muted small">Remember your password? </span>
-        <span
-          className="text-primary cursor-pointer fw-semibold"
-          onClick={onSwitchToLogin}
-          style={{ cursor: 'pointer' }}
-        >
+        <button type="button" className="btn btn-link p-0 small text-primary fw-semibold" onClick={onSwitchToLogin}>
           Login here
-        </span>
+        </button>
       </div>
     </div>
   );
 }
+
+ForgotPasswordForm.propTypes = {
+  onSwitchToLogin: PropTypes.func,
+  onSwitchToReset: PropTypes.func,
+  onClose: PropTypes.func,
+};

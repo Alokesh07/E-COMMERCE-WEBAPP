@@ -44,8 +44,8 @@ const cardSchema = new mongoose.Schema({
 
 // Encrypt card number before saving (in production, use proper encryption)
 cardSchema.pre('save', function(next) {
-  // Store only last 4 digits
-  if (this.isModified('cardNumber')) {
+  // Store only last 4 digits (guard if cardNumber is missing)
+  if (this.isModified('cardNumber') && this.cardNumber) {
     this.cardLast4 = this.cardNumber.slice(-4);
   }
   next();

@@ -1,4 +1,5 @@
-import { User, MapPin, Package, Power } from "lucide-react";
+import { User, MapPin, Package, Power, CreditCard } from "lucide-react";
+import PropTypes from 'prop-types';
 
 export default function ProfileSidebar({
   activeTab,
@@ -28,6 +29,13 @@ export default function ProfileSidebar({
         </button>
 
         <button
+          className={itemClass("cards")}
+          onClick={() => setActiveTab("cards")}
+        >
+          <CreditCard size={18} /> Saved Cards
+        </button>
+
+        <button
           className={itemClass("orders")}
           onClick={() => setActiveTab("orders")}
         >
@@ -44,3 +52,9 @@ export default function ProfileSidebar({
     </div>
   );
 }
+
+ProfileSidebar.propTypes = {
+  activeTab: PropTypes.string,
+  setActiveTab: PropTypes.func.isRequired,
+  onLogoutClick: PropTypes.func,
+};

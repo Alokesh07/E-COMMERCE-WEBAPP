@@ -4,6 +4,7 @@ import ProfileSidebar from "../components/Profile/ProfileSidebar";
 import ProfileInfoPanel from "../components/Profile/ProfileInfoPanel";
 import AddressPanel from "../components/Profile/AddressPanel";
 import OrderHistoryPanel from "../components/Profile/OrderHistoryPanel";
+import CardManagement from "../components/Profile/CardManagement";
 import LogoutConfirmModal from "../components/Profile/LogoutConfirmModal";
 
 export default function UserProfile() {
@@ -33,6 +34,7 @@ export default function UserProfile() {
         <div className="col-md-9 profile-content">
           {activeTab === "profile" && <ProfileInfoPanel />}
           {activeTab === "addresses" && <AddressPanel />}
+          {activeTab === "cards" && <CardManagement />}
           {activeTab === "orders" && <OrderHistoryPanel />}
         </div>
       </div>
