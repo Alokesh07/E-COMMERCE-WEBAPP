@@ -39,7 +39,8 @@ const userSchema = new mongoose.Schema({
     zip: String,
     phone: String,
     type: { type: String, enum: ['Home','Work','PG','Other'], default: 'Home' },
-    isDefault: { type: Boolean, default: false }
+    isDefault: { type: Boolean, default: false },
+    isProtected: { type: Boolean, default: false }
   }],
   avatar: {
     type: String,

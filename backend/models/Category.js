@@ -1,6 +1,30 @@
 const mongoose = require('mongoose');
 
+const specificationSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  type: {
+    type: String,
+    enum: ['text', 'select', 'multiselect', 'number', 'date', 'textarea'],
+    default: 'text'
+  },
+  options: [String], // For select/multiselect types
+  required: {
+    type: Boolean,
+    default: false
+  },
+  placeholder: String,
+  helpText: String
+}, { _id: true });
+
 const subcategorySchema = new mongoose.Schema({
+  id: {
+    type: String,
+    default: () => 'subcat_' + Date.now()
+  },
   name: {
     type: String,
     required: true
@@ -10,20 +34,30 @@ const subcategorySchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  description: {
+    type: String,
+    default: ''
+  },
   image: {
     type: String,
     default: ''
   },
+  specifications: [specificationSchema],
   isActive: {
     type: Boolean,
     default: true
+  },
+  order: {
+    type: Number,
+    default: 0
   }
 }, { _id: true });
 
 const categorySchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   slug: {
     type: String,
