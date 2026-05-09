@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdmin } from "../context/AdminContext";
 import { adminAPI, ordersAPI } from "../utils/api";
+import CategoryManagement from "../components/Admin/CategoryManagement";
 import {
   Package, ShoppingCart, LogOut, Plus, Search, Edit, Trash2,
-  Eye, BarChart3, TrendingUp
+  Eye, BarChart3, TrendingUp, Settings
 } from "lucide-react";
 
 const ORDER_STATUS = {
@@ -25,16 +26,19 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
     category: "",
+    subcategory: "",
     brand: "",
     price: 0,
     stock: {},
     image: null,
-    sizes: []
+    sizes: [],
+    specifications: {}
   });
 
   // Redirect if not admin
@@ -47,6 +51,7 @@ export default function AdminDashboard() {
   // Load data
   useEffect(() => {
     loadDashboardData();
+    loadCategories();
   }, []);
 
   const loadDashboardData = async () => {
@@ -62,6 +67,15 @@ export default function AdminDashboard() {
       console.error("Error loading dashboard data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const data = await adminAPI.getCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error("Error loading categories:", err);
     }
   };
 
@@ -91,41 +105,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAddProduct = async () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.category) {
-      alert("Please fill required fields");
-      return;
-    }
-    try {
-      await adminAPI.createProduct(newProduct);
-      setShowAddProduct(false);
-      setNewProduct({
-        name: "",
-        description: "",
-        category: "",
-        brand: "",
-        price: 0,
-        stock: {},
-        image: null,
-        sizes: []
-      });
-      loadDashboardData();
-    } catch (err) {
-      console.error("Error adding product:", err);
-    }
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setNewProduct({ ...newProduct, image: event.target.result });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const calculateAnalytics = () => {
     if (!stats) return {};
     const totalRevenue = stats.totalRevenue || 0;
@@ -138,6 +117,12 @@ export default function AdminDashboard() {
       totalProducts: stats.totalProducts || 0,
       totalUsers: stats.totalUsers || 0
     };
+  };
+
+  const getSelectedSubcategory = () => {
+    if (!newProduct.category || !newProduct.subcategory) return null;
+    const cat = categories.find(c => c._id === newProduct.category);
+    return cat?.subcategories.find(s => s._id === newProduct.subcategory);
   };
 
   const analytics = calculateAnalytics();
@@ -192,7 +177,7 @@ export default function AdminDashboard() {
           borderRight: "1px solid #e0e0e0",
           padding: "20px 0"
         }}>
-          {["overview", "orders", "products", "analytics"].map(tab => (
+          {["overview", "orders", "products", "categories", "analytics"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -213,6 +198,7 @@ export default function AdminDashboard() {
               {tab === "overview" && <BarChart3 size={16} style={{ marginRight: "8px", display: "inline" }} />}
               {tab === "orders" && <ShoppingCart size={16} style={{ marginRight: "8px", display: "inline" }} />}
               {tab === "products" && <Package size={16} style={{ marginRight: "8px", display: "inline" }} />}
+              {tab === "categories" && <Settings size={16} style={{ marginRight: "8px", display: "inline" }} />}
               {tab === "analytics" && <TrendingUp size={16} style={{ marginRight: "8px", display: "inline" }} />}
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -388,7 +374,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* PRODUCTS TAB */}
+          {/* PRODUCTS TAB - WITH DYNAMIC SPECS */}
           {activeTab === "products" && (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -421,9 +407,12 @@ export default function AdminDashboard() {
                   marginBottom: "20px",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
                 }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                  <h3 style={{ marginBottom: "16px", color: "#333" }}>Add New Product</h3>
+                  
+                  {/* Basic Info */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
                     <input
-                      placeholder="Product Name"
+                      placeholder="Product Name *"
                       value={newProduct.name}
                       onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                       style={{ padding: "10px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
@@ -434,20 +423,52 @@ export default function AdminDashboard() {
                       onChange={(e) => setNewProduct({ ...newProduct, brand: e.target.value })}
                       style={{ padding: "10px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
                     />
-                    <input
-                      placeholder="Category"
+
+                    {/* Category Select */}
+                    <select
                       value={newProduct.category}
-                      onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                      onChange={(e) => setNewProduct({ 
+                        ...newProduct, 
+                        category: e.target.value,
+                        subcategory: "",
+                        specifications: {}
+                      })}
                       style={{ padding: "10px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
-                    />
+                    >
+                      <option value="">Select Category *</option>
+                      {categories.map(cat => (
+                        <option key={cat._id} value={cat._id}>{cat.name}</option>
+                      ))}
+                    </select>
+
+                    {/* Subcategory Select (Dynamic) */}
+                    {newProduct.category && (
+                      <select
+                        value={newProduct.subcategory}
+                        onChange={(e) => setNewProduct({ 
+                          ...newProduct, 
+                          subcategory: e.target.value,
+                          specifications: {}
+                        })}
+                        style={{ padding: "10px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
+                      >
+                        <option value="">Select Subcategory *</option>
+                        {categories.find(c => c._id === newProduct.category)?.subcategories?.map(subcat => (
+                          <option key={subcat._id} value={subcat._id}>{subcat.name}</option>
+                        ))}
+                      </select>
+                    )}
+
                     <input
                       type="number"
-                      placeholder="Price (₹)"
+                      placeholder="Price (₹) *"
                       value={newProduct.price}
                       onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
                       style={{ padding: "10px", border: "1px solid #ddd", borderRadius: "6px", fontSize: "14px" }}
                     />
                   </div>
+
+                  {/* Description */}
                   <textarea
                     placeholder="Description"
                     value={newProduct.description}
@@ -458,12 +479,109 @@ export default function AdminDashboard() {
                       borderRadius: "6px",
                       fontSize: "14px",
                       width: "100%",
-                      marginTop: "16px",
+                      marginBottom: "16px",
                       minHeight: "100px",
                       resize: "vertical"
                     }}
                   />
-                  <div style={{ marginTop: "16px" }}>
+
+                  {/* Dynamic Specifications */}
+                  {getSelectedSubcategory() && (
+                    <div style={{
+                      background: "#f9f9f9",
+                      padding: "16px",
+                      borderRadius: "8px",
+                      marginBottom: "16px",
+                      border: "2px solid #e0e0e0"
+                    }}>
+                      <h4 style={{ marginBottom: "16px", color: "#333" }}>
+                        📋 Product Specifications for <strong>{getSelectedSubcategory().name}</strong>
+                      </h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                        {getSelectedSubcategory().specifications?.map(spec => (
+                          <div key={spec._id}>
+                            <label style={{ display: "block", marginBottom: "4px", fontSize: "13px", fontWeight: "600" }}>
+                              {spec.name}
+                              {spec.required && <span style={{ color: "red" }}>*</span>}
+                            </label>
+                            {spec.type === "select" ? (
+                              <select
+                                value={newProduct.specifications[spec.name] || ""}
+                                onChange={(e) => setNewProduct({
+                                  ...newProduct,
+                                  specifications: {
+                                    ...newProduct.specifications,
+                                    [spec.name]: e.target.value
+                                  }
+                                })}
+                                style={{
+                                  padding: "8px",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "4px",
+                                  width: "100%",
+                                  fontSize: "13px"
+                                }}
+                              >
+                                <option value="">{spec.placeholder || "Select..."}</option>
+                                {spec.options?.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            ) : spec.type === "textarea" ? (
+                              <textarea
+                                placeholder={spec.placeholder}
+                                value={newProduct.specifications[spec.name] || ""}
+                                onChange={(e) => setNewProduct({
+                                  ...newProduct,
+                                  specifications: {
+                                    ...newProduct.specifications,
+                                    [spec.name]: e.target.value
+                                  }
+                                })}
+                                style={{
+                                  padding: "8px",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "4px",
+                                  width: "100%",
+                                  fontSize: "13px",
+                                  minHeight: "60px",
+                                  resize: "vertical"
+                                }}
+                              />
+                            ) : (
+                              <input
+                                type={spec.type}
+                                placeholder={spec.placeholder}
+                                value={newProduct.specifications[spec.name] || ""}
+                                onChange={(e) => setNewProduct({
+                                  ...newProduct,
+                                  specifications: {
+                                    ...newProduct.specifications,
+                                    [spec.name]: e.target.value
+                                  }
+                                })}
+                                style={{
+                                  padding: "8px",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "4px",
+                                  width: "100%",
+                                  fontSize: "13px"
+                                }}
+                              />
+                            )}
+                            {spec.helpText && (
+                              <p style={{ margin: "4px 0 0 0", fontSize: "11px", color: "#999" }}>
+                                {spec.helpText}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Image Upload */}
+                  <div style={{ marginBottom: "16px" }}>
                     <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600" }}>
                       Product Image
                     </label>
@@ -471,7 +589,16 @@ export default function AdminDashboard() {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageUpload}
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setNewProduct({ ...newProduct, image: event.target.result });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
                         style={{ padding: "8px" }}
                       />
                       {newProduct.image && (
@@ -483,9 +610,37 @@ export default function AdminDashboard() {
                       )}
                     </div>
                   </div>
-                  <div style={{ marginTop: "16px", display: "flex", gap: "12px" }}>
+
+                  {/* Action Buttons */}
+                  <div style={{ display: "flex", gap: "12px" }}>
                     <button
-                      onClick={handleAddProduct}
+                      onClick={async () => {
+                        if (!newProduct.name || !newProduct.price || !newProduct.subcategory) {
+                          alert("Please fill all required fields (Name, Price, Subcategory)");
+                          return;
+                        }
+                        try {
+                          await adminAPI.createProduct(newProduct);
+                          setNewProduct({
+                            name: "",
+                            description: "",
+                            category: "",
+                            subcategory: "",
+                            brand: "",
+                            price: 0,
+                            stock: {},
+                            image: null,
+                            sizes: [],
+                            specifications: {}
+                          });
+                          setShowAddProduct(false);
+                          loadDashboardData();
+                          alert("Product added successfully!");
+                        } catch (err) {
+                          console.error("Error adding product:", err);
+                          alert("Failed to add product: " + err.message);
+                        }
+                      }}
                       style={{
                         background: "#4caf50",
                         color: "white",
@@ -493,10 +648,11 @@ export default function AdminDashboard() {
                         padding: "10px 20px",
                         borderRadius: "6px",
                         cursor: "pointer",
-                        fontSize: "14px"
+                        fontSize: "14px",
+                        fontWeight: "600"
                       }}
                     >
-                      Add Product
+                      ✓ Add Product
                     </button>
                     <button
                       onClick={() => setShowAddProduct(false)}
@@ -515,8 +671,13 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
-              <p style={{ color: "#999", fontSize: "14px" }}>Products API integration in progress...</p>
+              <p style={{ color: "#999", fontSize: "14px" }}>📝 Products list coming soon...</p>
             </div>
+          )}
+
+          {/* CATEGORIES TAB */}
+          {activeTab === "categories" && (
+            <CategoryManagement />
           )}
 
           {/* ANALYTICS TAB */}
