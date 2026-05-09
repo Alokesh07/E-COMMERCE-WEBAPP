@@ -10,9 +10,8 @@ import { useAuth } from "../../context/AuthContext";
 import { Link } from 'react-router-dom';
 
 const LoginRegister = () => {
-  const [activeTab, setActiveTab] = useState("login");
+  const [view, setView] = useState("login"); // 'login' | 'signup' | 'forgot'
   const [message, setMessage] = useState("");
-  const [showForgot, setShowForgot] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -45,7 +44,7 @@ const LoginRegister = () => {
     const resp = await register(data);
     if (resp.success) {
       setMessage('Registration successful. You are now logged in.');
-      setActiveTab('login');
+      setView('login');
     } else {
       setMessage(resp.message || 'Registration failed');
     }
@@ -92,37 +91,45 @@ const LoginRegister = () => {
         </div> */}
         <div className="card-container">
           <div className="auth-card">
-            <div className="tab-container">
-              <button
-                className={`tab-btn ${activeTab === "login" ? "active" : ""}`}
-                onClick={() => setActiveTab("login")}
-              >
-                Login
-              </button>
-              <button
-                className={`tab-btn ${activeTab === "signup" ? "active" : ""}`}
-                onClick={() => setActiveTab("signup")}
-              >
-                Sign Up
-              </button>
-              <div
-                className={`tab-indicator ${
-                  activeTab === "login" ? "left" : "right"
-                }`}
-              />
-            </div>
+            {view !== "forgot" && (
+              <div className="tab-container">
+                <button
+                  className={`tab-btn ${view === "login" ? "active" : ""}`}
+                  onClick={() => setView("login")}
+                >
+                  Login
+                </button>
+                <button
+                  className={`tab-btn ${view === "signup" ? "active" : ""}`}
+                  onClick={() => setView("signup")}
+                >
+                  Sign Up
+                </button>
+                <div
+                  className={`tab-indicator ${
+                    view === "login" ? "left" : "right"
+                  }`}
+                />
+              </div>
+            )}
 
             <div className="form-container">
-              {activeTab === "login" ? (
+              {view === "forgot" ? (
+                <ForgotPasswordForm
+                  onGoBack={() => setView("login")}
+                  onSwitchToLogin={() => setView("login")}
+                  onClose={() => setView("login")}
+                />
+              ) : view === "login" ? (
                 <LoginForm
                   onSubmit={handleLogin}
-                  onSwitchToSignup={() => setActiveTab("signup")}
-                  onShowForgot={() => setShowForgot(true)}
+                  onSwitchToSignup={() => setView("signup")}
+                  onShowForgot={() => setView("forgot")}
                 />
               ) : (
                 <SignupForm
                   onSubmit={handleSignup}
-                  onSwitchToLogin={() => setActiveTab("login")}
+                  onSwitchToLogin={() => setView("login")}
                 />
               )}
             </div>
@@ -139,15 +146,6 @@ const LoginRegister = () => {
       </div>
 
       <AuthMessageModal message={message} onClose={() => setMessage("")} />
-
-      {showForgot && (
-        <div className="modal-overlay">
-          <div className="modal-card small-card">
-            <button className="btn-close" onClick={() => setShowForgot(false)}>×</button>
-            <ForgotPasswordForm onSwitchToLogin={() => { setShowForgot(false); setActiveTab('login'); }} onClose={() => setShowForgot(false)} />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
