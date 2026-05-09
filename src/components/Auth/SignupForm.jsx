@@ -27,7 +27,7 @@ export default function SignupForm({ onSubmit, onSwitchToLogin }) {
   };
 
   const generateUsername = (name) => {
-    const firstName = name.trim().split(" ")[0].toLowerCase();
+    const firstName = name.trim().split(" ")[0];
     const random = Math.floor(1000 + Math.random() * 9000);
     return `${firstName}${random}`;
   };
