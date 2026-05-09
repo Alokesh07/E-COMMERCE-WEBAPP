@@ -191,13 +191,19 @@ export default function AddressPanel() {
                 <Pencil size={14} /> Edit
               </button>
 
-              <button
-                className="action-btn danger"
-                onClick={() => removeAddress(a.id)}
-                title="Remove"
-              >
-                <Trash2 size={14} /> Remove
-              </button>
+              {a.isProtected ? (
+                <button className="action-btn danger" disabled title="Protected">
+                  <Trash2 size={14} /> Protected
+                </button>
+              ) : (
+                <button
+                  className="action-btn danger"
+                  onClick={() => removeAddress(a.id)}
+                  title="Remove"
+                >
+                  <Trash2 size={14} /> Remove
+                </button>
+              )}
             </div>
           </div>
         ))}
