@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { authAPI } from '../../utils/api';
 import { sendLog } from '../../utils/logger';
 
-export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset, onClose }) {
+export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset, onClose, onGoBack }) {
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -30,6 +30,16 @@ export default function ForgotPasswordForm({ onSwitchToLogin, onSwitchToReset, o
 
   return (
     <div className="forgot-password-container">
+      {onGoBack && (
+        <button
+          className="btn-back modal-back-btn"
+          onClick={onGoBack}
+          aria-label="Go back"
+          style={{ position: 'absolute', left: 12, top: 12, fontSize: 20 }}
+        >
+          ←
+        </button>
+      )}
       {onClose && (
         <button
           className="btn-close modal-close-btn"
@@ -99,4 +109,5 @@ ForgotPasswordForm.propTypes = {
   onSwitchToLogin: PropTypes.func,
   onSwitchToReset: PropTypes.func,
   onClose: PropTypes.func,
+  onGoBack: PropTypes.func,
 };

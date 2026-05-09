@@ -8,7 +8,7 @@ import {globalThis} from 'globalthis';
 // ResetPasswordForm is used both as a standalone route and inside a modal.
 // It prefers a `token` prop if provided; otherwise it reads the `token` query param.
 
-export default function ResetPasswordForm({ token: propToken, onClose }) {
+export default function ResetPasswordForm({ token: propToken, onClose, onGoBack }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = propToken || searchParams.get('token');
@@ -96,6 +96,16 @@ export default function ResetPasswordForm({ token: propToken, onClose }) {
   return (
     <div className="reset-password-modal-overlay">
       <div className="reset-password-container modal-card" style={{ position: 'relative' }}>
+        {onGoBack && (
+          <button
+            className="btn-back modal-back-btn"
+            onClick={onGoBack}
+            aria-label="Go back"
+            style={{ position: 'absolute', left: 12, top: 12, fontSize: 20 }}
+          >
+            ←
+          </button>
+        )}
         {onClose && (
           <button
             className="btn-close modal-close-btn"
@@ -177,4 +187,5 @@ export default function ResetPasswordForm({ token: propToken, onClose }) {
 ResetPasswordForm.propTypes = {
   token: PropTypes.string,
   onClose: PropTypes.func,
+  onGoBack: PropTypes.func,
 };
