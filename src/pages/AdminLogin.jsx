@@ -13,20 +13,23 @@ export default function AdminLogin() {
   const { login } = useAdmin();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      const result = login({ username, password });
+    try {
+      const result = await login({ username, password });
       if (result.success) {
         navigate("/admin");
       } else {
-        setError(result.message);
+        setError(result.message || "Login failed");
       }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (
