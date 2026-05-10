@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFilters } from "../context/FilterContext";
 import { useCart } from "../context/CartContext";
-import { ShoppingCart, Zap, Plus, Minus, SearchX, Star, Heart, Loader, Eye, X } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, SearchX, Star, Heart, Loader, Eye, X, ArrowUpDown } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { productsAPI } from "../utils/api";
 import "../styles/shop.css";
@@ -17,6 +17,7 @@ export default function Shop() {
     try { return JSON.parse(localStorage.getItem('wishlist') || '[]') } catch(e){return []}
   });
   const [quickView, setQuickView] = useState({ open: false, product: null });
+  const [sortBy, setSortBy] = useState("relevance");
   const [searchParams] = useSearchParams();
 
   const searchQuery = searchParams.get("search")?.toLowerCase() || "";
@@ -79,6 +80,21 @@ export default function Shop() {
         p.brand?.toLowerCase().includes(searchQuery) ||
         p.category?.toLowerCase().includes(searchQuery)
       );
+    })
+    .sort((a, b) => {
+      switch(sortBy) {
+        case "price-low-to-high":
+          return a.price - b.price;
+        case "price-high-to-low":
+          return b.price - a.price;
+        case "rating":
+          return (b.rating || 0) - (a.rating || 0);
+        case "newest":
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case "relevance":
+        default:
+          return 0;
+      }
     });
 
   // Loading state
@@ -115,7 +131,45 @@ export default function Shop() {
   }
 
   return (
-    <div className="container py-4">
+    <div className="container py-4" style={{ position: "relative" }}>
+      {/* Floating Sort Dropdown */}
+      <div style={{
+        position: "fixed",
+        top: "100px",
+        right: "20px",
+        zIndex: 100,
+        background: "white",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+        borderRadius: "8px",
+        overflow: "hidden",
+        border: "1px solid #e0e0e0"
+      }}>
+        <select 
+          value={sortBy} 
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{
+            padding: "10px 16px",
+            border: "none",
+            background: "white",
+            fontSize: "13px",
+            fontWeight: "500",
+            cursor: "pointer",
+            appearance: "none",
+            paddingRight: "30px",
+            minWidth: "160px",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23666' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right 10px center"
+          }}
+        >
+          <option value="relevance">Sort by: Relevance</option>
+          <option value="price-low-to-high">Price: Low to High</option>
+          <option value="price-high-to-low">Price: High to Low</option>
+          <option value="rating">Rating: High to Low</option>
+          <option value="newest">Newest First</option>
+        </select>
+      </div>
+
       <div className="shop-top d-flex justify-content-between align-items-center mb-3">
         <h3 className="mb-0">Products</h3>
         <div className="small text-muted">{filteredProducts.length} items</div>

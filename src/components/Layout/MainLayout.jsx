@@ -8,8 +8,11 @@ import MobileDock from "./MobileDock";
 export default function MainLayout() {
   const location = useLocation();
 
-  // Hide sidebar on profile page
-  const hideSidebar = location.pathname.startsWith("/profile");
+  // Hide sidebar on profile, cart, and order tracking pages
+  const hideSidebar = 
+    location.pathname.startsWith("/profile") ||
+    location.pathname.startsWith("/cart") ||
+    location.pathname.startsWith("/order-tracking");
 
   return (
     <>
