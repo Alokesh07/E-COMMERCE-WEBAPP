@@ -25,7 +25,7 @@ const createPasswordNotification = async (userId, type, message) => {
 // Register new user
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone, username, dob } = req.body;
+    const { name, email, password, phone, username, dob, address } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email and password are required' });
@@ -49,6 +49,23 @@ exports.register = async (req, res) => {
       dob: dob ? new Date(dob) : undefined,
       addresses: []
     });
+
+    // If an address string was provided during registration, store it as primary and protected
+    if (address && address.trim()) {
+      const primaryAddr = {
+        id: 'addr_' + Date.now(),
+        name: name || '',
+        address: address.trim(),
+        city: '',
+        state: '',
+        zip: '',
+        phone: phone || '',
+        type: 'Home',
+        isDefault: true,
+        isProtected: true
+      };
+      user.addresses.push(primaryAddr);
+    }
 
     await user.save();
 
@@ -249,6 +266,15 @@ exports.deleteAddress = async (req, res) => {
   try {
     const { addressId } = req.params;
     const user = await User.findById(req.user.userId);
+
+    const addr = user.addresses.find(a => a.id === addressId);
+    if (!addr) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+
+    if (addr.isProtected) {
+      return res.status(400).json({ message: 'This address cannot be deleted' });
+    }
 
     user.addresses = user.addresses.filter(a => a.id !== addressId);
     await user.save();
