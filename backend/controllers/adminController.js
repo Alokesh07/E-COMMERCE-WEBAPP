@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 const Notification = require('../models/Notification');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -11,16 +12,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'shopx_secret_key_2024';
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    // Try to find an admin user in the DB by username or email
-    const query = { role: 'admin', $or: [{ username: username }, { email: String(username).toLowerCase() }] };
-    const user = await User.findOne(query).select('+password');
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Username and password are required' });
+    }
+    const query = { role: 'admin', $or: [{ username }, { email: String(username).toLowerCase() }] };
+    const user = await User.findOne(query);
 
     if (!user) {
+      console.log(`[Admin Auth] No admin found for '${username}'`);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!isMatch) {
+      console.log(`[Admin Auth] Password mismatch for '${username}'`);
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role, username: user.username || user.email },
@@ -28,6 +35,7 @@ exports.login = async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    console.log(`✓ Admin login successful for '${username}'`);
     res.json({
       message: 'Login successful',
       token,
@@ -39,6 +47,7 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('[Admin Auth Error]', error);
     res.status(500).json({ message: 'Error logging in', error: error.message });
   }
 };
@@ -266,5 +275,267 @@ exports.deleteOrder = async (req, res) => {
     res.json({ message: 'Order deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting order', error: error.message });
+  }
+};
+
+// ==================== CATEGORY MANAGEMENT ====================
+
+// Get all categories with subcategories and specifications
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching categories', error: error.message });
+  }
+};
+
+// Get single category with all details
+exports.getCategoryDetail = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    res.json(category);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching category', error: error.message });
+  }
+};
+
+// Create new category
+exports.createCategory = async (req, res) => {
+  try {
+    const { name, description, icon, image, color } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: 'Category name is required' });
+    }
+
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    
+    const existingCategory = await Category.findOne({ slug });
+    if (existingCategory) {
+      return res.status(400).json({ message: 'Category already exists' });
+    }
+
+    const category = new Category({
+      name,
+      slug,
+      description: description || '',
+      icon: icon || 'Package',
+      image: image || '',
+      color: color || '#0d6efd',
+      subcategories: [],
+      isActive: true
+    });
+
+    await category.save();
+    res.status(201).json({ message: 'Category created successfully', category });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating category', error: error.message });
+  }
+};
+
+// Update category
+exports.updateCategory = async (req, res) => {
+  try {
+    const { name, description, icon, image, color } = req.body;
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    if (name && name !== category.name) {
+      const slug = name.toLowerCase().replace(/\s+/g, '-');
+      const existing = await Category.findOne({ slug, _id: { $ne: req.params.id } });
+      if (existing) {
+        return res.status(400).json({ message: 'Category name already exists' });
+      }
+      category.name = name;
+      category.slug = slug;
+    }
+
+    category.description = description || category.description;
+    category.icon = icon || category.icon;
+    category.image = image || category.image;
+    category.color = color || category.color;
+    category.updatedAt = new Date();
+
+    await category.save();
+    res.json({ message: 'Category updated successfully', category });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating category', error: error.message });
+  }
+};
+
+// Delete category
+exports.deleteCategory = async (req, res) => {
+  try {
+    const category = await Category.findByIdAndDelete(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting category', error: error.message });
+  }
+};
+
+// ==================== SUBCATEGORY MANAGEMENT ====================
+
+// Add subcategory to category
+exports.addSubcategory = async (req, res) => {
+  try {
+    const { name, description, icon, image, specifications } = req.body;
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    if (!name) {
+      return res.status(400).json({ message: 'Subcategory name is required' });
+    }
+
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    
+    const existingSubcat = category.subcategories.find(s => s.slug === slug);
+    if (existingSubcat) {
+      return res.status(400).json({ message: 'Subcategory already exists in this category' });
+    }
+
+    const subcategory = {
+      id: 'subcat_' + Date.now(),
+      name,
+      slug,
+      description: description || '',
+      image: image || '',
+      specifications: specifications || [],
+      isActive: true,
+      order: category.subcategories.length
+    };
+
+    category.subcategories.push(subcategory);
+    await category.save();
+
+    res.status(201).json({ message: 'Subcategory added successfully', subcategory });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding subcategory', error: error.message });
+  }
+};
+
+// Update subcategory
+exports.updateSubcategory = async (req, res) => {
+  try {
+    const { name, description, icon, image, specifications } = req.body;
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    const subcategory = category.subcategories.id(req.params.subcatId);
+    if (!subcategory) {
+      return res.status(404).json({ message: 'Subcategory not found' });
+    }
+
+    if (name && name !== subcategory.name) {
+      const slug = name.toLowerCase().replace(/\s+/g, '-');
+      const existing = category.subcategories.find(s => s.slug === slug && s._id.toString() !== req.params.subcatId);
+      if (existing) {
+        return res.status(400).json({ message: 'Subcategory name already exists' });
+      }
+      subcategory.name = name;
+      subcategory.slug = slug;
+    }
+
+    subcategory.description = description !== undefined ? description : subcategory.description;
+    subcategory.image = image || subcategory.image;
+    subcategory.specifications = specifications || subcategory.specifications;
+
+    await category.save();
+    res.json({ message: 'Subcategory updated successfully', subcategory });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating subcategory', error: error.message });
+  }
+};
+
+// Delete subcategory
+exports.deleteSubcategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    category.subcategories.id(req.params.subcatId).remove();
+    await category.save();
+
+    res.json({ message: 'Subcategory deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting subcategory', error: error.message });
+  }
+};
+
+// Add specification to subcategory
+exports.addSpecification = async (req, res) => {
+  try {
+    const { name, type, options, required, placeholder, helpText } = req.body;
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    const subcategory = category.subcategories.id(req.params.subcatId);
+    if (!subcategory) {
+      return res.status(404).json({ message: 'Subcategory not found' });
+    }
+
+    if (!name) {
+      return res.status(400).json({ message: 'Specification name is required' });
+    }
+
+    const specification = {
+      name,
+      type: type || 'text',
+      options: options || [],
+      required: required || false,
+      placeholder: placeholder || '',
+      helpText: helpText || ''
+    };
+
+    subcategory.specifications.push(specification);
+    await category.save();
+
+    res.status(201).json({ message: 'Specification added successfully', specification });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding specification', error: error.message });
+  }
+};
+
+// Delete specification
+exports.deleteSpecification = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    const subcategory = category.subcategories.id(req.params.subcatId);
+    if (!subcategory) {
+      return res.status(404).json({ message: 'Subcategory not found' });
+    }
+
+    subcategory.specifications.id(req.params.specId).remove();
+    await category.save();
+
+    res.json({ message: 'Specification deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting specification', error: error.message });
   }
 };
