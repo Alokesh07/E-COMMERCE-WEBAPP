@@ -221,6 +221,42 @@ export const adminAPI = {
     body: JSON.stringify({ status }),
   }),
   deleteOrder: (id) => apiCall(`/admin/orders/${id}`, { method: 'DELETE' }),
+  
+  // Category Management
+  getCategories: () => apiCall('/admin/categories'),
+  getCategoryDetail: (id) => apiCall(`/admin/categories/${id}`),
+  createCategory: (categoryData) => apiCall('/admin/categories', {
+    method: 'POST',
+    body: JSON.stringify(categoryData),
+  }),
+  updateCategory: (id, categoryData) => apiCall(`/admin/categories/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(categoryData),
+  }),
+  deleteCategory: (id) => apiCall(`/admin/categories/${id}`, { method: 'DELETE' }),
+  
+  // Subcategory Management
+  addSubcategory: (categoryId, subcategoryData) => apiCall(`/admin/categories/${categoryId}/subcategories`, {
+    method: 'POST',
+    body: JSON.stringify(subcategoryData),
+  }),
+  updateSubcategory: (categoryId, subcategoryId, subcategoryData) => 
+    apiCall(`/admin/categories/${categoryId}/subcategories/${subcategoryId}`, {
+      method: 'PUT',
+      body: JSON.stringify(subcategoryData),
+    }),
+  deleteSubcategory: (categoryId, subcategoryId) => 
+    apiCall(`/admin/categories/${categoryId}/subcategories/${subcategoryId}`, { method: 'DELETE' }),
+  
+  // Specification Management
+  addSpecification: (categoryId, subcategoryId, specData) => 
+    apiCall(`/admin/categories/${categoryId}/subcategories/${subcategoryId}/specifications`, {
+      method: 'POST',
+      body: JSON.stringify(specData),
+    }),
+  deleteSpecification: (categoryId, subcategoryId, specId) => 
+    apiCall(`/admin/categories/${categoryId}/subcategories/${subcategoryId}/specifications/${specId}`, 
+      { method: 'DELETE' }),
 };
 
 export default {
