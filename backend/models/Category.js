@@ -80,6 +80,16 @@ const categorySchema = new mongoose.Schema({
     type: String,
     default: 'Package'
   },
+  brands: [
+    {
+      type: String,
+      trim: true
+    }
+  ],
+  categoryImage: {
+    type: String,
+    default: ''
+  },
   subcategories: [subcategorySchema],
   isActive: {
     type: Boolean,

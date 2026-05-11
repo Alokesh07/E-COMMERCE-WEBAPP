@@ -6,6 +6,8 @@ const categoriesData = [
     description: 'Electronic devices, gadgets, and accessories',
     icon: 'Zap',
     color: '#FF6B6B',
+    categoryImage: 'https://images.unsplash.com/photo-1498049794561-7780e6b1b330?w=500&h=500&fit=crop&blur=2',
+    brands: ['Apple', 'Samsung', 'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Vivo', 'Dell', 'HP', 'Lenovo', 'ASUS', 'Acer', 'MSI'],
     subcategories: [
       {
         name: 'Smartphones',
@@ -59,6 +61,8 @@ const categoriesData = [
     description: 'Clothing, footwear, and accessories',
     icon: 'ShoppingBag',
     color: '#4ECDC4',
+    categoryImage: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=500&h=500&fit=crop&blur=2',
+    brands: ['Nike', 'Adidas', 'Puma', 'Reebok', 'Decathlon', 'Levi\'s', 'Tommy Hilfiger', 'Calvin Klein', 'H&M', 'Forever 21'],
     subcategories: [
       {
         name: "Men's Clothing",
@@ -105,6 +109,8 @@ const categoriesData = [
     description: 'Furniture, bedding, kitchenware, and more',
     icon: 'Home',
     color: '#95E1D3',
+    categoryImage: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=500&fit=crop&blur=2',
+    brands: ['IKEA', 'Urban Ladder', 'Godrej', 'Nilkamal', 'Fabindia', 'Prestige', 'Whirlpool', 'Kent', 'Bosch'],
     subcategories: [
       {
         name: 'Furniture',
@@ -148,6 +154,8 @@ const categoriesData = [
     description: 'Sports equipment, outdoor gear, fitness',
     icon: 'Activity',
     color: '#F38181',
+    categoryImage: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=500&fit=crop&blur=2',
+    brands: ['Nike', 'Adidas', 'Puma', 'Decathlon', 'Domyos', 'Kalenji', 'Quechua', 'Columbia', 'The North Face'],
     subcategories: [
       {
         name: 'Fitness Equipment',
@@ -189,6 +197,8 @@ const categoriesData = [
     description: 'Books, audiobooks, magazines, and media',
     icon: 'BookOpen',
     color: '#AA96DA',
+    categoryImage: 'https://images.unsplash.com/photo-1507842217343-583f7270bfbb?w=500&h=500&fit=crop&blur=2',
+    brands: ['Penguin Books', 'HarperCollins', 'Hachette', 'Simon & Schuster', 'Bloomsbury', 'Oxford University Press'],
     subcategories: [
       {
         name: 'Books',
@@ -219,6 +229,8 @@ const seedCategories = async () => {
         description: cat.description,
         icon: cat.icon,
         color: cat.color,
+        categoryImage: cat.categoryImage || '',
+        brands: cat.brands || [],
         subcategories: cat.subcategories.map((subcat, idx) => ({
           id: `subcat_${Date.now()}_${idx}`,
           name: subcat.name,
@@ -233,7 +245,7 @@ const seedCategories = async () => {
       }))
     );
 
-    console.log(`✓ Seeded ${insertedCategories.length} categories with detailed specifications`);
+    console.log(`✓ Seeded ${insertedCategories.length} categories with detailed specifications and brands`);
     return insertedCategories;
   } catch (error) {
     console.error('Error seeding categories:', error);
