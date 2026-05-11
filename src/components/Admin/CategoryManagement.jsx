@@ -15,7 +15,9 @@ export default function CategoryManagement() {
     name: '',
     description: '',
     icon: 'Package',
-    color: '#0d6efd'
+    color: '#0d6efd',
+    brands: [],
+    categoryImage: ''
   });
 
   const [newSubcategory, setNewSubcategory] = useState({
@@ -30,6 +32,8 @@ export default function CategoryManagement() {
     required: false,
     placeholder: ''
   });
+
+  const [newBrandInput, setNewBrandInput] = useState('');  // For brand input
 
   // Load categories
   useEffect(() => {
@@ -55,8 +59,20 @@ export default function CategoryManagement() {
       return;
     }
     try {
-      await adminAPI.createCategory(newCategory);
-      setNewCategory({ name: '', description: '', icon: 'Package', color: '#0d6efd' });
+      // Parse brands from input
+      const brandsArray = newBrandInput
+        .split(',')
+        .map(b => b.trim())
+        .filter(b => b.length > 0);
+      
+      const categoryToCreate = {
+        ...newCategory,
+        brands: brandsArray.length > 0 ? brandsArray : newCategory.brands
+      };
+
+      await adminAPI.createCategory(categoryToCreate);
+      setNewCategory({ name: '', description: '', icon: 'Package', color: '#0d6efd', brands: [], categoryImage: '' });
+      setNewBrandInput('');
       setShowNewCategory(false);
       loadCategories();
     } catch (err) {
@@ -182,6 +198,19 @@ export default function CategoryManagement() {
               onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
               style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
             />
+            <input
+              type="color"
+              value={newCategory.color}
+              onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
+              style={{ padding: '5px', border: '1px solid #ddd', borderRadius: '6px', height: '40px' }}
+              title="Category Color"
+            />
+            <input
+              placeholder="Category Image URL"
+              value={newCategory.categoryImage}
+              onChange={(e) => setNewCategory({ ...newCategory, categoryImage: e.target.value })}
+              style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
+            />
           </div>
           <textarea
             placeholder="Description"
@@ -196,6 +225,61 @@ export default function CategoryManagement() {
               minHeight: '80px'
             }}
           />
+          {/* Brands Input */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ fontSize: '13px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+              Brands (comma-separated)
+            </label>
+            <input
+              placeholder="e.g., Apple, Samsung, Nike, Adidas"
+              value={newBrandInput}
+              onChange={(e) => setNewBrandInput(e.target.value)}
+              style={{
+                padding: '10px',
+                border: '1px solid #ddd',
+                borderRadius: '6px',
+                width: '100%',
+                marginBottom: '8px'
+              }}
+            />
+            {newCategory.brands.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {newCategory.brands.map((brand, idx) => (
+                  <span
+                    key={idx}
+                    style={{
+                      background: '#667eea',
+                      color: 'white',
+                      padding: '4px 12px',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    {brand}
+                    <button
+                      onClick={() => setNewCategory({
+                        ...newCategory,
+                        brands: newCategory.brands.filter((_, i) => i !== idx)
+                      })}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '16px'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={handleCreateCategory}

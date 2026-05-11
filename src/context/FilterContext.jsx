@@ -43,6 +43,11 @@ export function FilterProvider({ children }) {
   const selectCategory = (category) => {
     setActiveCategory(category);
     setActiveSubcategory(null);
+    // Clear brand filters when category changes
+    setFilters({
+      ...filters,
+      brands: [],
+    });
   };
 
   const selectSubcategory = (subcategory) => {
@@ -52,6 +57,11 @@ export function FilterProvider({ children }) {
   const clearCategorySelection = () => {
     setActiveCategory(null);
     setActiveSubcategory(null);
+    setFilters({
+      price: 50000,
+      brands: [],
+      sort: "",
+    });
   };
 
   return (
