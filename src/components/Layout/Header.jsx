@@ -194,10 +194,14 @@ export default function Header() {
           <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div className="modal-content">
               {/* MODAL HEADER */}
-              <div className="modal-header">
-                <h5 className="modal-title fw-bold">Browse Categories</h5>
+              <div className="modal-header" style={{
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "white",
+                borderBottom: "none"
+              }}>
+                <h5 className="modal-title fw-bold" style={{ color: "white" }}>✨ Browse Categories</h5>
                 <button
-                  className="btn-close"
+                  className="btn-close btn-close-white"
                   onClick={() => {
                     setShowCategoryModal(false);
                     setActiveCategory(null);
@@ -206,23 +210,72 @@ export default function Header() {
               </div>
 
               {/* MODAL BODY */}
-              <div className="modal-body">
+              <div className="modal-body" style={{ background: "#f8f9fa" }}>
                 {!activeCategory ? (
                   <div className="row g-4">
                     {categories.map((cat) => (
                       <div className="col-md-3" key={cat._id || cat.id}>
                         <div
-                          className="card h-100 text-center category-card"
-                          style={{ cursor: "pointer" }}
+                          className="card h-100"
+                          style={{
+                            cursor: "pointer",
+                            overflow: "hidden",
+                            border: "none",
+                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                            position: "relative",
+                            minHeight: "220px"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = "translateY(-8px)";
+                            e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.15)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+                          }}
                           onClick={() => setActiveCategory(cat)}
                         >
-                          <img
-                            src={cat.image || 'https://via.placeholder.com/200x200?text=Category'}
-                            className="card-img-top"
-                            alt=""
+                          {/* Background Image */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "100%",
+                              backgroundImage: `url('${cat.categoryImage || 'https://via.placeholder.com/200x200?text=Category'}')`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              opacity: 0.3,
+                              zIndex: 1
+                            }}
                           />
-                          <div className="card-body">
-                            <h6 className="fw-bold">{cat.name}</h6>
+                          {/* Overlay */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "100%",
+                              background: `linear-gradient(135deg, ${cat.color || '#667eea'}dd 0%, ${cat.color || '#667eea'}99 100%)`,
+                              zIndex: 2
+                            }}
+                          />
+                          {/* Content */}
+                          <div className="card-body d-flex flex-column justify-content-center align-items-center" style={{
+                            position: "relative",
+                            zIndex: 3,
+                            textAlign: "center",
+                            height: "100%"
+                          }}>
+                            <h5 className="fw-bold" style={{ color: "white", margin: 0, fontSize: "18px" }}>
+                              {cat.name}
+                            </h5>
+                            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "12px", margin: "8px 0 0 0" }}>
+                              {cat.subcategories?.length || 0} subcategories
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -233,6 +286,7 @@ export default function Header() {
                     <button
                       className="btn btn-sm btn-outline-secondary mb-3"
                       onClick={() => setActiveCategory(null)}
+                      style={{ transition: "all 0.2s ease-out" }}
                     >
                       ← Back to Categories
                     </button>
@@ -240,14 +294,30 @@ export default function Header() {
                     <div className="row g-4">
                       {activeCategory.subcategories?.map((sub) => (
                         <div className="col-md-3" key={sub._id || sub.id}>
-                          <div className="card h-100 text-center subcategory-card">
+                          <div className="card h-100" style={{
+                            overflow: "hidden",
+                            border: "none",
+                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                            minHeight: "180px"
+                          }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform = "scale(1.05)";
+                              e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = "scale(1)";
+                              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+                            }}
+                          >
                             <img
                               src={sub.image || 'https://via.placeholder.com/200x200?text=Subcategory'}
                               className="card-img-top"
-                              alt=""
+                              alt={sub.name}
+                              style={{ height: "150px", objectFit: "cover", opacity: 0.8 }}
                             />
                             <div className="card-body">
-                              <h6>{sub.name}</h6>
+                              <h6 style={{ fontWeight: "600", marginBottom: 0 }}>{sub.name}</h6>
                             </div>
                           </div>
                         </div>
