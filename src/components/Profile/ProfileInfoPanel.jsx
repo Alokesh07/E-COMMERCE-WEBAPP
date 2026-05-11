@@ -96,14 +96,14 @@ export default function ProfileInfoPanel() {
               <span className="d-flex align-items-center gap-1">
                 <BadgeCheck size={14} /> User ID
               </span>
-              <strong>{user.username}</strong>
+              <strong>{user._id?.substring(0, 12) || user.username || 'N/A'}</strong>
             </div>
 
             <div className="info-item">
               <span className="d-flex align-items-center gap-1">
                 <Calendar size={14} /> DOB
               </span>
-              <strong>{user.dob ? new Date(user.dob).toLocaleDateString() : 'Not provided'}</strong>
+              <strong>{user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : (user.dob ? new Date(user.dob).toLocaleDateString() : 'Not provided')}</strong>
             </div>
 
             <div className="info-item">
