@@ -10,7 +10,8 @@ import {
 
 const ORDER_STATUS = {
   PLACED: { label: "Placed", color: "#ff9f00" },
-  CONFIRMED: { label: "Confirmed", color: "#2196f3" },
+  AWAITED: { label: "Awaited", color: "#ff9800" },
+  CONFIRMED: { label: "Confirmed", color: "#2196f3" }, 
   PACKED: { label: "Packed", color: "#9c27b0" },
   SHIPPED: { label: "Shipped", color: "#4caf50" },
   OUT_FOR_DELIVERY: { label: "Out for Delivery", color: "#ff5722" },
