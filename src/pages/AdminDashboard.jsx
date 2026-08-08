@@ -4,8 +4,8 @@ import { useAdmin } from "../context/AdminContext";
 import { adminAPI, ordersAPI } from "../utils/api";
 import CategoryManagement from "../components/Admin/CategoryManagement";
 import {
-  Package, ShoppingCart, LogOut, Plus, Search, Edit, Trash2,
-  Eye, BarChart3, TrendingUp, Settings
+  Package, ShoppingCart, LogOut, Plus,
+  BarChart3, TrendingUp, Settings
 } from "lucide-react";
 
 const ORDER_STATUS = {
